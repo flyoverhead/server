@@ -1,0 +1,20 @@
+---
+
+- name: detect
+  ansible.builtin.import_tasks:
+    file: detect.yml
+
+- name: install
+  become: true
+  ansible.builtin.import_tasks:
+    file: install.yml
+  when:
+    - not fail2ban_installed
+
+- name: config
+  become: true
+  ansible.builtin.import_tasks:
+    file: config.yml
+
+- name: handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,69 @@
+---
+
+- name: config | fail2ban.local
+  ansible.builtin.template:
+    src: fail2ban.local.j2
+    dest: /etc/fail2ban/fail2ban.local
+    owner: root
+    group: root
+    mode: '0640'
+  notify:
+    - fail2ban | restart
+
+- name: config | jail.local
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: '0640'
+  notify:
+    - fail2ban | restart
+
+- name: config | auth log
+  block:
+
+    - name: config | check auth.log file
+      ansible.builtin.stat:
+        path: /var/log/auth.log
+      register: fail2ban_auth
+
+    - name: config | create auth.log file
+      ansible.builtin.file:
+        path: /var/log/auth.log
+        state: touch
+        mode: '0640'
+      when:
+        - not fail2ban_auth.stat.exists
+
+- name: config | telegram notification
+  when:
+    - fail2ban_telegram_bot_token != ''
+    - fail2ban_telegram_chat_id != ''
+  block:
+
+    - name: config | create telegram.conf
+      ansible.builtin.template:
+        src: telegram.conf.j2
+        dest: /etc/fail2ban/action.d/telegram.conf
+        owner: root
+        group: root
+        mode: '0640'
+      notify:
+        - fail2ban | restart
+
+    - name: config | create scripts directory
+      ansible.builtin.file:
+        path: /etc/fail2ban/scripts
+        owner: root
+        group: root
+        mode: '0750'
+        state: directory
+
+    - name: config | create telegram.sh script
+      ansible.builtin.template:
+        src: telegram.sh.j2
+        dest: /etc/fail2ban/scripts/telegram.sh
+        owner: root
+        group: root
+        mode: '0750'

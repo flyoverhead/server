@@ -1,0 +1,32 @@
+---
+
+version: '3'
+
+silent: true
+
+tasks:
+
+  deploy:
+    cmds:
+      - vagrant up
+      - task: play
+
+  destroy:
+    cmds:
+      - vagrant destroy -f
+      - rm -rf .vagrant || True
+
+  provision:
+    cmds:
+      - task: play
+
+  reload:
+    internal: true
+    cmds:
+      - ansible -i inventory.yml -m ansible.builtin.reboot --become
+
+  play:
+    dir: tests
+    internal: true
+    cmds:
+      - ansible-playbook -i inventory.yml playbook.yml

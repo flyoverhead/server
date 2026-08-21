@@ -1,0 +1,64 @@
+---
+
+- name: detect | setup
+  ansible.builtin.setup:
+  when:
+    - ansible_facts == {}
+
+- name: detect | packages
+  ansible.builtin.package_facts:
+
+- name: detect | services
+  ansible.builtin.service_facts:
+
+- name: detect | install
+  ansible.builtin.set_fact:
+    systemd_install: >-
+      {{ true if "firewalld" not in ansible_facts.packages or
+      "nftables" not in ansible_facts.packages or
+      "systemd-resolved" not in ansible_facts.packages or
+      "systemd-timesyncd" not in ansible_facts.packages else false }}
+
+- name: detect | networkd
+  when:
+    - systemd_networkd | length > 0
+  block:
+
+    - name: detect | add default interface
+      ansible.builtin.set_fact:
+        systemd_networkd: >
+          {{ systemd_networkd | default([]) +
+          [{'name': ansible_default_ipv4.interface,
+          'kind': ansible_default_ipv4.type,
+          'address': ansible_default_ipv4.address + '/24',
+          'gateway': ansible_default_ipv4.gateway,
+          'nameservers': systemd_resolved.dns,
+          'domains': systemd_resolved.domains}] }}
+      when:
+        - systemd_networkd | selectattr("name", "search", ansible_default_ipv4.interface) | length == 0
+
+    - name: detect | link tunnels with interfaces
+      ansible.builtin.set_fact:
+        systemd_networkd_tunnels: >
+          {{ systemd_networkd_tunnels | default([]) +
+          ([item | combine({"tunnels": systemd_networkd | selectattr("kind", "match", "ipip") |
+          selectattr("device", "match", item.name) | map(attribute='name')})] if item.kind == 'ether' else [item]) }}
+      loop: '{{ systemd_networkd }}'
+      loop_control:
+        label: '{{ item.name }}'
+
+    - name: detect | set networkd interfaces priorities
+      ansible.builtin.set_fact:
+        systemd_all_networkd: >
+          {{ systemd_all_networkd | default([]) + [item | combine({"priority": 10 if item.kind in ['ether', 'link', 'loopback']
+          else 20 if item.kind in ['bridge', 'bond'] else 30 if item.kind == 'vlan' else 40 if item.kind == 'ipip'})] }}
+      loop: '{{ systemd_networkd_tunnels | default([]) }}'
+      loop_control:
+        label: '{{ item.name }}'
+
+- name: detect | set systemd_all_firewalld fact
+  ansible.builtin.set_fact:
+    systemd_all_firewalld: >-
+      {{ lookup('community.general.merge_variables',
+      '^systemd.+firewalld$',
+      initial_value=[]) | unique }}

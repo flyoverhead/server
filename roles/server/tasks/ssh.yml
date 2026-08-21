@@ -1,0 +1,74 @@
+---
+
+- name: ssh | check custom port {{ server_ssh_port }}
+  ansible.builtin.wait_for:
+    port: '{{ server_ssh_port | int }}'
+    state: started
+    host: '{{ server_ssh_host }}'
+    timeout: 10
+  register: server_custom_ssh_port
+  failed_when:
+    - '"Timeout when waiting" not in (server_custom_ssh_port.msg | default(""))'
+    - server_custom_ssh_port.failed | default(false)
+
+- name: ssh | configure custom port
+  when:
+    - '"Timeout when waiting" in server_custom_ssh_port.msg'
+  block:
+
+    - name: ssh | check socket unit
+      become: true
+      ansible.builtin.stat:
+        path: /etc/systemd/system/sockets.target.wants/ssh.socket
+      register: server_ssh_socket_unit_file
+
+    - name: ssh | set socket config fact
+      ansible.builtin.set_fact:
+        server_ssh_socket_config: >-
+          {{ true if
+          server_ssh_socket_unit_file.stat.exists
+          else false }}
+
+    - name: ssh | configure sshd_config
+      become: true
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        search_string: Port 22
+        line: Port {{ server_ssh_port }}
+        state: present
+
+    - name: ssh | configure ssh.socket
+      when:
+        - server_ssh_socket_config
+      block:
+
+        - name: ssh | create drop-in folder
+          become: true
+          ansible.builtin.file:
+            path: /etc/systemd/system/ssh.socket.d
+            owner: root
+            group: root
+            mode: '0755'
+            state: directory
+
+        - name: ssh | create drop-in config
+          become: true
+          ansible.builtin.template:
+            src: ssh_socket.j2
+            dest: /etc/systemd/system/ssh.socket.d/listen.conf
+            owner: root
+            group: root
+            mode: '0644'
+            lstrip_blocks: true
+
+    - name: ssh | apply changes
+      become: true
+      ansible.builtin.systemd_service:
+        name: ssh
+        state: restarted
+        enabled: true
+        daemon_reload: true
+
+    - name: ssh | set ansible_port to custom {{ server_ssh_port }}  # noqa: var-naming[no-role-prefix]
+      ansible.builtin.set_fact:
+        ansible_port: '{{ server_ssh_port | int }}'

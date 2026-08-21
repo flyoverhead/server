@@ -1,0 +1,30 @@
+---
+
+# Left empty on purpose. A non-empty systemd_networkd makes the role take
+# networking over: it wipes /etc/systemd/network of anything it did not write,
+# replaces /etc/network/interfaces and reboots. On a Vagrant box eth0 is the
+# provider's NAT interface, so getting that definition wrong costs you the box
+# and `vagrant ssh` along with it. firewalld, resolved and timesyncd are all
+# still exercised with this empty.
+#
+# To cover networkd as well, uncomment the block below -- eth1 is the private
+# network the inventory connects over, eth0 stays on DHCP for the NAT.
+systemd_networkd: []
+
+  # - name: lo
+  #   kind: loopback
+  #   addresses:
+  #     - 127.0.0.1/8
+  # - name: eth0
+  #   kind: ether
+  #   address: dhcp
+  # - name: eth1
+  #   kind: ether
+  #   address: '{{ ansible_host }}/24'
+
+systemd_resolved:
+  dns:
+    - 9.9.9.9
+  domains: []
+  cache: true
+  stub_listener: true

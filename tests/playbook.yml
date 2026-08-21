@@ -1,0 +1,22 @@
+---
+
+- name: configure servers
+  hosts: server
+  gather_facts: true
+
+  roles:
+
+    # must run first: it creates the login user and sudo rights every later
+    # role connects with, and settles the sshd port that `systemd` opens in
+    # firewalld and `fail2ban` watches
+    - role: server
+
+    - role: systemd
+      when: '"systemd" in group_names'
+
+    - role: ohmyzsh
+      when: '"ohmyzsh" in group_names'
+
+    # needs firewalld from `systemd` -- banaction is firewallcmd-rich-rules
+    - role: fail2ban
+      when: '"fail2ban" in group_names'

@@ -1,0 +1,11 @@
+---
+
+- name: detect | oh-my-zsh installation
+  become: True
+  ansible.builtin.stat:
+    path: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+  register: ohmyzsh_stat
+
+- name: detect | oh-my-zsh installed
+  ansible.builtin.set_fact:
+    ohmyzsh_installed: '{{ True if ohmyzsh_stat.stat.exists else False }}'

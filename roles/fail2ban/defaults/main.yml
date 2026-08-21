@@ -1,0 +1,20 @@
+---
+
+# `[DEFAULT]` section of jail.local.
+fail2ban_bantime: 3600
+fail2ban_findtime: 600
+fail2ban_maxretry: 3
+fail2ban_backend: auto
+fail2ban_destemail: root@localhost
+fail2ban_sendername: Fail2Ban
+fail2ban_mta: sendmail
+
+# The `[sshd]` jail bans on the port Ansible connects over, so this role has to
+# run after the `server` role has moved sshd onto `ansible_port`.
+fail2ban_sshd_mode: ddos
+
+# Telegram notifications are configured only when both are non-empty. The token
+# is rendered into /etc/fail2ban/scripts/telegram.sh on the managed host, so
+# keep it in a vault.
+fail2ban_telegram_bot_token: ''
+fail2ban_telegram_chat_id: ''

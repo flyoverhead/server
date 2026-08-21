@@ -1,0 +1,63 @@
+---
+
+- name: packages | install required
+  become: true
+  ansible.builtin.apt:
+    name: '{{ server_packages }}'
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  tags:
+    - server.packages
+
+- name: packages | install pip
+  ansible.builtin.pip:
+    name: '{{ server_pip_packages }}'
+    state: present
+    virtualenv: '{{ server_pip_pyenv_path }}'
+    virtualenv_command: python3 -m venv
+    extra_args: --upgrade
+  tags:
+    - server.pip
+
+- name: packages | upgrade
+  become: true
+  when:
+    - server_upgrade
+  tags:
+    - server.upgrade
+  block:
+
+    - name: packages | check updates
+      ansible.builtin.apt:
+        cache_valid_time: 3600
+        update_cache: True
+
+    - name: packages | upgrade
+      ansible.builtin.apt:
+        upgrade: safe
+        update_cache: True
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: packages | clean dependencies
+      ansible.builtin.apt:
+        autoremove: True
+
+    - name: packages | check obsolete kernel
+      ansible.builtin.command:
+        cmd: needrestart -v -n -k
+      register: server_kernel_upgrade
+      changed_when: >-
+        "kernel seems to be up-to-date" not in server_kernel_upgrade.stdout
+      notify:
+        - packages | reboot
+
+    - name: packages | check obsolete libraries
+      ansible.builtin.command:
+        cmd: needrestart -v -n -l
+      register: server_libraries_upgrade
+      changed_when: >-
+        "services need to be restarted" not in server_libraries_upgrade.stdout
+      notify:
+        - packages | reboot

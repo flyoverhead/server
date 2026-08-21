@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Send notification
+function send_msg {
+  apiToken="{{ fail2ban_telegram_bot_token }}"
+  chatId="{{ fail2ban_telegram_chat_id }}"
+  url="https://api.telegram.org/bot$apiToken/sendMessage"
+  curl -s -X POST $url -d chat_id=$chatId -d text="$1"
+  exit
+}
+
+# Take action depending on argument
+case "${1}" in
+  "start")
+    msg='{{ inventory_hostname }}: fail2ban started'
+    send_msg "${msg}"
+  ;;
+  "stop")
+    msg='{{ inventory_hostname }}: fail2ban stopped'
+    send_msg "${msg}"
+  ;;
+  "ban")
+    msg=$([ "${2}" != '' ] && echo "{{ inventory_hostname }}: fail2ban banned ${2}" || echo "{{ inventory_hostname }}: fail2ban banned ip")
+    send_msg "${msg}"
+  ;;
+  "unban")
+    msg=$([ "${2}" != '' ] && echo "{{ inventory_hostname }}: fail2ban unbanned ${2}" || echo "{{ inventory_hostname }}: fail2ban unbanned ip")
+    send_msg "${msg}"
+  ;;
+esac

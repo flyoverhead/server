@@ -1,0 +1,9 @@
+---
+
+- name: detect | package fact
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: detect | fail2ban installed fact
+  ansible.builtin.set_fact:
+    fail2ban_installed: '{{ True if "fail2ban" in ansible_facts.packages else False }}'

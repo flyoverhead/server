@@ -1,0 +1,67 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+    apply:
+      tags:
+        - server.config
+        - server.host
+        - server.packages
+        - server.pip
+        - server.root
+        - server.ssh
+        - server.timezone
+        - server.upgrade
+        - server.user
+  tags:
+    - server.config
+    - server.host
+    - server.packages
+    - server.pip
+    - server.root
+    - server.ssh
+    - server.timezone
+    - server.upgrade
+    - server.user
+
+- name: user
+  ansible.builtin.include_tasks:
+    file: user.yml
+    apply:
+      tags:
+        - server.user
+  tags:
+    - server.user
+
+- name: ssh
+  ansible.builtin.include_tasks:
+    file: ssh.yml
+    apply:
+      tags:
+        - server.ssh
+  when:
+    - server_ssh_port != ansible_port
+  tags:
+    - server.ssh
+
+- name: config
+  ansible.builtin.include_tasks:
+    file: config.yml
+  tags:
+    - server.config
+    - server.host
+    - server.root
+    - server.ssh
+    - server.timezone
+
+- name: packages
+  ansible.builtin.include_tasks:
+    file: packages.yml
+  tags:
+    - server.packages
+    - server.pip
+    - server.upgrade
+
+- name: handlers
+  ansible.builtin.meta: flush_handlers

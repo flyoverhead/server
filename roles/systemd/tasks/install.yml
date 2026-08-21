@@ -1,0 +1,66 @@
+---
+
+- name: install | timesyncd
+  become: true
+  tags:
+    - systemd.timesyncd
+  block:
+
+    - name: install | remove ntp
+      ansible.builtin.apt:
+        name:
+          - ntp
+          - chrony
+        state: absent
+        autoremove: true
+        purge: true
+
+    - name: install | timesyncd
+      ansible.builtin.apt:
+        name: systemd-timesyncd
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+- name: install | firewalld
+  become: true
+  tags:
+    - systemd.firewalld
+  block:
+
+    - name: install | firewalld
+      ansible.builtin.apt:
+        name:
+          - firewalld
+          - iptables
+          - nftables
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: install | stop firewalld service
+      ansible.builtin.systemd_service:
+        name: firewalld
+        state: stopped
+
+    - name: install | activate nftables
+      community.general.alternatives:
+        name: '{{ item }}'
+        path: /usr/sbin/{{ item }}-nft
+      loop:
+        - iptables
+        - ip6tables
+        - arptables
+        - ebtables
+      notify:
+        - system | reboot
+
+- name: install | resolved
+  become: true
+  ansible.builtin.apt:
+    name: '{{ "systemd-resolved" if ansible_distribution_major_version | int >= 12 else "libnss-resolve" }}'
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  tags:
+    - systemd.resolved

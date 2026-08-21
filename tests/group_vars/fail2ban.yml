@@ -1,0 +1,6 @@
+---
+
+# Empty on both counts, so the role leaves the telegram action out of
+# jail.local entirely. Set them to cover the notification path.
+fail2ban_telegram_bot_token: ''
+fail2ban_telegram_chat_id: ''

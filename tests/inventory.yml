@@ -1,0 +1,20 @@
+---
+
+# Every role group is a child of `server`, so the single Vagrant box runs the
+# whole stack in the order playbook.yml lists them.
+
+server:
+  hosts:
+    host-01:
+
+fail2ban:
+  children:
+    server:
+
+ohmyzsh:
+  children:
+    server:
+
+systemd:
+  children:
+    server:

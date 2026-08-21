@@ -1,0 +1,71 @@
+---
+
+- name: install | dependencies
+  become: True
+  ansible.builtin.apt:
+    name: '{{ ohmyzsh_dependencies }}'
+    state: present
+    update_cache: True
+    cache_valid_time: 3600
+  when:
+    - ansible_system == 'Linux'
+
+- name: install | clear previous oh-my-zsh install
+  ansible.builtin.file:
+    path: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+    state: absent
+  when:
+    - ohmyzsh_force_reinstall
+
+- name: install | download oh-my-zsh install script
+  become: True
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/ohmyzsh-install.sh
+    mode: '0755'
+
+- name: install | oh-my-zsh
+  become: True
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.command:
+    cmd: sh /tmp/ohmyzsh-install.sh --unattended
+    creates: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+
+- name: install | remove install script
+  become: True
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.file:
+    path: /tmp/ohmyzsh-install.sh
+    state: absent
+
+- name: install | set default zsh shell
+  become: True
+  ansible.builtin.user:
+    name: '{{ ohmyzsh_user_name }}'
+    shell: /bin/zsh
+
+- name: install | fonts
+  become: True
+  block:
+
+    - name: install | create fonts directory
+      ansible.builtin.file:
+        path: '{{ ohmyzsh_user_home }}/.fonts'
+        state: directory
+        owner: '{{ ohmyzsh_user_name }}'
+        group: '{{ ohmyzsh_user_group }}'
+        mode: '0755'
+
+    - name: install | download fonts
+      ansible.builtin.get_url:
+        url: https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item }}
+        dest: '{{ ohmyzsh_user_home }}/.fonts/{{ item | regex_replace("%20", "_") }}'
+        owner: '{{ ohmyzsh_user_name }}'
+        group: '{{ ohmyzsh_user_group }}'
+        mode: '0644'
+      loop:
+        - MesloLGS%20NF%20Regular.ttf
+        - MesloLGS%20NF%20Bold.ttf
+        - MesloLGS%20NF%20Italic.ttf
+        - MesloLGS%20NF%20Bold%20Italic.ttf

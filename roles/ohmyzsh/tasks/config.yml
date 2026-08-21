@@ -1,0 +1,51 @@
+---
+
+- name: config | plugins
+  become: True
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.git:
+    repo: '{{ item.url }}'
+    dest: '{{ ohmyzsh_user_home }}/.oh-my-zsh/custom/plugins/{{ item.name }}'
+    depth: 1
+    version: '{{ item.branch }}'
+  loop: '{{ ohmyzsh_install_plugins }}'
+  loop_control:
+    label: '{{ item.name }}'
+  register: ohmyzsh_repo_clone
+  failed_when:
+    - ohmyzsh_repo_clone.failed
+    - not 'Local modifications exist in the destination' in ohmyzsh_repo_clone.msg
+
+- name: config | powerlevel10k theme
+  become: True
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: '{{ ohmyzsh_user_home }}/.oh-my-zsh/custom/themes/powerlevel10k'
+    depth: 1
+    version: master
+  register: ohmyzsh_repo_clone
+  failed_when:
+    - ohmyzsh_repo_clone.failed
+    - not 'Local modifications exist in the destination' in ohmyzsh_repo_clone.msg
+
+- name: config | .zshrc
+  become: True
+  ansible.builtin.template:
+    src: zshrc.j2
+    dest: '{{ ohmyzsh_user_home }}/.zshrc'
+    owner: '{{ ohmyzsh_user_name }}'
+    group: '{{ ohmyzsh_user_group }}'
+    mode: '0644'
+    lstrip_blocks: true
+    force: True
+  register: ohmyzsh_zshrc
+
+- name: config | p10k.zsh
+  become: True
+  ansible.builtin.copy:
+    src: p10k.zsh
+    dest: '{{ ohmyzsh_user_home }}/.p10k.zsh'
+    owner: '{{ ohmyzsh_user_name }}'
+    group: '{{ ohmyzsh_user_group }}'
+    mode: '0644'

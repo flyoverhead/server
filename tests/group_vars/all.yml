@@ -1,0 +1,17 @@
+---
+
+ansible_user: vagrant
+ansible_password: vagrant
+
+# Bootstrap credentials, only used if the first connection is refused.
+default_user: vagrant
+default_password: vagrant
+
+# The harness leaves sshd on 22 so `vagrant ssh` keeps working, and pins
+# server_ssh_port to match. That makes the `server` role skip tasks/ssh.yml,
+# which is the one path this harness does not cover -- see the collection
+# README.
+server_ssh_port: 22
+
+server_timezone: Europe/Moscow
+server_upgrade: false

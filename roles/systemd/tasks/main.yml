@@ -1,0 +1,33 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+    apply:
+      tags:
+        - systemd.firewalld
+        - systemd.networkd
+        - systemd.resolved
+        - systemd.timesyncd
+
+- name: install
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when:
+    - systemd_install
+  tags:
+    - systemd.firewalld
+    - systemd.resolved
+    - systemd.timesyncd
+
+- name: config
+  ansible.builtin.include_tasks:
+    file: config.yml
+  tags:
+    - systemd.firewalld
+    - systemd.networkd
+    - systemd.resolved
+    - systemd.timesyncd
+
+- name: handlers
+  ansible.builtin.meta: flush_handlers

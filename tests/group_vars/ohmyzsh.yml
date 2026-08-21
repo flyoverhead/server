@@ -1,0 +1,5 @@
+---
+
+# The role clones these from GitHub on every run, so an offline box fails here
+# rather than in the install step.
+ohmyzsh_force_reinstall: false

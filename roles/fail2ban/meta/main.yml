@@ -1,0 +1,27 @@
+---
+
+# This role started as a fork of robertdebock.fail2ban and keeps its original
+# Apache-2.0 licence, which is why it differs from the GPL-3.0-only of the rest
+# of the collection. See roles/fail2ban/README.md for the attribution note.
+galaxy_info:
+  role_name: fail2ban
+  namespace: flyoverhead
+  author: robertdebock
+  description: Install and configure fail2ban on your system.
+  license: Apache-2.0
+  company: none
+  min_ansible_version: '2.16'
+
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+
+  galaxy_tags:
+    - fail2ban
+    - installer
+    - package
+    - security
+
+dependencies: []

@@ -1,0 +1,20 @@
+---
+
+galaxy_info:
+  role_name: ohmyzsh
+  namespace: flyoverhead
+  author: flyoverhead
+  description: Oh My Zsh and powerlevel10k shell configuration
+  license: GPL-3.0-only
+  min_ansible_version: '2.16'
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+  galaxy_tags:
+    - powerlevel10k
+    - shell
+    - zsh
+
+dependencies: []

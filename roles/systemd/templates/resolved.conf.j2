@@ -1,0 +1,14 @@
+{{ ansible_managed | comment }}
+
+[Resolve]
+{% if systemd_resolved.dns | length > 0 %}
+DNS={{ systemd_resolved.dns | join(' ') }}
+{% endif %}
+{% if systemd_resolved.domains | length > 0 %}
+Domains={{ systemd_resolved.domains | join(' ') }}
+{% endif %}
+MulticastDNS=false
+LLMNR=false
+Cache={{ systemd_resolved.cache | default('true') | lower }}
+DNSStubListener={{ systemd_resolved.stub_listener | default('true') | lower }}
+ResolveUnicastSingleLabel=true

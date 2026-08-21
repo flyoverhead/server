@@ -1,0 +1,40 @@
+---
+
+- name: detect | gather remote facts
+  ansible.builtin.setup:
+
+- name: detect | ssh port
+  when:
+    - ansible_port != 22
+  block:
+
+    - name: detect | custom ssh port fact
+      ansible.builtin.set_fact:
+        server_ssh_port: '{{ ansible_port }}'
+        server_ssh_host: '{{ ansible_host }}'
+
+    - name: detect | default ssh port
+      ansible.builtin.wait_for:
+        port: 22
+        state: started
+        host: '{{ server_ssh_host }}'
+        connect_timeout: 5
+        timeout: 10
+      register: server_default_ssh_port
+      failed_when:
+        - '"Timeout when waiting" not in (server_default_ssh_port.msg | default(""))'
+        - server_default_ssh_port.failed | default(false)
+
+    - name: detect | default ssh port fact  # noqa: var-naming[no-role-prefix]
+      ansible.builtin.set_fact:
+        ansible_port: 22
+      when:
+        - '"Timeout when waiting" not in server_default_ssh_port.msg'
+
+- name: detect | connection to host
+  ansible.builtin.ping:
+  register: server_check_connection_result
+  failed_when:
+    - '"Connection refused" not in (server_check_connection_result.msg | default(""))'
+    - '"Permission denied" not in (server_check_connection_result.msg | default(""))'
+    - '"pong" not in (server_check_connection_result.ping | default(""))'

@@ -1,0 +1,7 @@
+{{ ansible_managed | comment }}
+
+[Match]
+Name={{ item.slaves | join(' ') }}
+
+[Network]
+{{ item.kind | capitalize }}={{ item.name }}

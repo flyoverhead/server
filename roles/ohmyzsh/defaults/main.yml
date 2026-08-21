@@ -1,0 +1,39 @@
+---
+
+ohmyzsh_user_name: '{{ ansible_user }}'
+ohmyzsh_user_group: '{{ ansible_user_gid }}'
+ohmyzsh_user_home: '{{ ansible_user_dir }}'
+
+ohmyzsh_dependencies:
+  - curl
+  - fontconfig
+  - fonts-powerline
+  - fzf
+  - git
+  - zsh
+
+ohmyzsh_install_plugins:
+  - name: zsh-autocomplete
+    url: https://github.com/marlonrichert/zsh-autocomplete.git
+    branch: main
+  - name: zsh-autosuggestions
+    url: https://github.com/zsh-users/zsh-autosuggestions.git
+    branch: master
+  - name: zsh-history-substring-search
+    url: https://github.com/zsh-users/zsh-history-substring-search.git
+    branch: master
+  - name: zsh-syntax-highlighting
+    url: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    branch: master
+
+ohmyzsh_theme: powerlevel10k/powerlevel10k
+
+ohmyzsh_plugins:
+  - pip
+  - python
+  - ssh-agent
+  - zsh-autocomplete
+
+ohmyzsh_venv_path: '{{ ohmyzsh_user_home }}/.venv'
+
+ohmyzsh_force_reinstall: false

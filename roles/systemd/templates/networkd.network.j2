@@ -1,0 +1,85 @@
+{{ ansible_managed | comment }}
+
+[Match]
+{% if item.macaddress | default('') | length > 0 %}
+MACAddress={{ item.macaddress }}
+{% else %}
+Name={{ item.name }}
+{% endif %}
+{% if item.mtu | default('') | length > 0 %}
+
+[Link]
+MTUBytes={{ item.mtu }}
+{% endif %}
+
+[Network]
+{% if item.kind == 'loopback' %}
+{% for address in item.addresses %}
+Address={{ address }}
+{% endfor %}
+{% endif %}
+{% if item.address | default('') == 'dhcp' %}
+DHCP=yes
+{% elif item.address | default('') | length > 0 %}
+Address={{ item.address }}
+{% endif %}
+{% if item.gateway | default('') != '' %}
+Gateway={{ item.gateway }}
+{% endif %}
+{% if item.nameservers | default([]) | length > 0 %}
+DNS={{ item.nameservers | join(' ') }}
+{% endif %}
+{% if item.domains | default([]) | length > 0 %}
+Domains={{ item.domains | join(' ') }}
+{% endif %}
+{% if item.vlans | default([]) | length > 0 %}
+{% for vlan in item.vlans %}
+VLAN={{ vlan }}
+{% endfor %}
+{% endif %}
+{% if item.slaves | default([]) | length > 0 %}
+BindCarrier={{ item.slaves | join(' ') }}
+{% endif %}
+{% if item.id | default('') != '' %}
+VLAN={{ item.name }}
+{% endif %}
+{% if item.tunnels | default([]) | length > 0 %}
+{% for tunnel in item.tunnels %}
+Tunnel={{ tunnel }}
+{% endfor %}
+{% endif %}
+LLMNR=false
+MulticastDNS=false
+{% if item.routes | default([]) | length > 0 %}
+{% for route in item.routes %}
+{% if route.destinations | default([]) | length > 0 %}
+{% for destination in route.destinations %}
+
+[Route]
+{% if route.source | default('') | length > 0 %}
+Source={{ route.source }}
+{% endif %}
+Destination={{ destination }}
+{% if route.gateway | default('') | length > 0 %}
+Gateway={{ route.gateway }}
+{% endif %}
+{% endfor %}
+{% else %}
+
+[Route]
+{% if route.source | default('') | length > 0 %}
+Source={{ route.source }}
+{% endif %}
+{% if route.destination | default('') | length > 0 %}
+Destination={{ route.destination }}
+{% endif %}
+{% if route.scope | default('') | length > 0 %}
+Scope={{ route.scope }}
+{% endif %}
+{% if route.gateway | default('') | length > 0 %}
+Gateway={{ route.gateway }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% endif %}

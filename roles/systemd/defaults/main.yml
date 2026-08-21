@@ -1,0 +1,149 @@
+---
+
+# Firewalld rules. Every variable matching `^systemd.+firewalld$` is merged
+# into one list by the `community.general.merge_variables` lookup in
+# tasks/detect.yml, so a caller can add rules in a group_vars file under its
+# own name (`systemd_extra_firewalld`, `systemd_web_firewalld`, ...) instead of
+# having to restate this list.
+systemd_default_firewalld:
+  - name: ssh
+    port: '{{ ansible_port }}/tcp'
+    zone: public
+    state: enabled
+    permanent: true
+
+# Networkd interfaces. An empty list disables all networkd management: no
+# .link/.netdev/.network file is written and /etc/network/interfaces is left
+# alone. As soon as the list is non-empty the role takes over networking
+# completely -- it removes every file under /etc/systemd/network it did not
+# just write, and masks the legacy `networking` service.
+#
+# `kind` selects the template and the file-name priority prefix:
+#
+#   ether, link, loopback -> 10    bridge, bond -> 20    vlan -> 30    ipip -> 40
+#
+# The interface carrying the default route is appended automatically if the
+# list does not already mention it.
+systemd_networkd: []
+
+  # - name: lo
+  #   kind: loopback
+  #   addresses:
+  #     - 127.0.0.1/8 # mandatory for loopback
+  #     - 192.0.2.10/32
+  #     - 192.0.2.11/32
+
+  # - name: eth0
+  #   kind: ether
+  #   address: 198.51.100.130/24
+  #   gateway: 198.51.100.1
+  #   nameservers:
+  #     - 192.0.2.53
+  #   domains:
+  #     - example.com
+  #   routes:
+  #     - name: route 01
+  #       gateway: 203.0.113.1
+  #       source: 198.51.100.0/24
+  #       onlink: True # optional
+  #       destinations:
+  #         - 203.0.113.11
+  #         - 203.0.113.12
+
+  # - name: eth1
+  #   kind: ether
+  #   address: 198.51.100.100/24
+  #   gateway: 198.51.100.1
+  #   nameservers:
+  #     - 192.0.2.53
+  #   domains:
+  #     - example.com
+
+  # - name: bond0
+  #   kind: bond
+  #   address: 198.51.100.100/24
+  #   gateway: 198.51.100.1
+  #   mode: 802.3ad
+  #   lacp_rate: fast
+  #   miimon: 1s
+  #   slaves:
+  #     - ens4f0np0
+  #     - ens4f1np1
+  #   vlans: # optional
+  #     - bond0.1
+  #     - bond0.2
+
+  # - name: bond1
+  #   kind: bond
+  #   mode: 802.3ad
+  #   lacp_rate: fast
+  #   miimon: 1
+  #   slaves:
+  #     - enp49s0f0
+  #     - enp49s0f1
+
+  # - name: br0
+  #   kind: bridge
+  #   address: 198.51.100.100
+  #   gateway: 198.51.100.1
+  #   nameservers:
+  #     - 192.0.2.53
+  #     - 192.0.2.54
+  #   domains:
+  #     - example.com
+  #   slaves:
+  #     - eth0
+  #     - eth1
+
+  # - name: bond0.1
+  #   kind: vlan
+  #   id: 1
+  #   address: 192.0.2.111/24
+  #   gateway: 192.0.2.1
+
+  # - name: bond0.2
+  #   kind: vlan
+  #   id: 2
+
+  # - name: tunl0
+  #   kind: ipip
+  #   device: eth0
+  #   address: 172.16.10.201/30
+  #   routes:
+  #     - name: ipip tunnel node1
+  #       destination: 172.16.10.20/30
+  #       gateway: 198.51.100.201
+  #       source: 172.16.10.201/30 # optional (default to interface address)
+  #       onlink: True # optional
+  #     - name: ipip tunnel node2
+  #       destination: 172.16.10.24/30
+  #       gateway: 198.51.100.202
+  #       onlink: True # optional
+
+  # - name: tunl1
+  #   kind: ipip
+  #   device: eth1
+  #   address: 172.16.10.205/30
+  #   routes:
+  #     - name: ipip tunnel node1
+  #       destination: 172.16.10.20/30
+  #       gateway: 198.51.100.201
+  #       source: 172.16.10.205/30 # optional (default to interface address)
+  #       onlink: True # optional
+
+systemd_resolved:
+  dns:
+    - 9.9.9.9
+  domains: []
+  cache: true
+  stub_listener: true
+
+systemd_timesyncd:
+  servers:
+    - 0.europe.pool.ntp.org
+    - 1.europe.pool.ntp.org
+    - 2.europe.pool.ntp.org
+    - 3.europe.pool.ntp.org
+  fallback_servers:
+    - 0.pool.ntp.org
+    - 1.pool.ntp.org

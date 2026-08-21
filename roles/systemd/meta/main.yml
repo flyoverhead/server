@@ -1,0 +1,22 @@
+---
+
+galaxy_info:
+  role_name: systemd
+  namespace: flyoverhead
+  author: flyoverhead
+  description: Systemd firewalld, networkd, resolved and timesyncd configuration
+  license: GPL-3.0-only
+  min_ansible_version: '2.16'
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+  galaxy_tags:
+    - dns
+    - firewall
+    - networking
+    - ntp
+    - systemd
+
+dependencies: []

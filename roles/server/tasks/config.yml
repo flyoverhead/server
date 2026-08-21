@@ -1,0 +1,62 @@
+---
+
+- name: config | sshd_config
+  become: true
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+    lstrip_blocks: true
+  notify:
+    - ssh | restart service
+  tags:
+    - server.ssh
+
+- name: config | hostname
+  become: true
+  ansible.builtin.hostname:
+    name: '{{ inventory_hostname }}'
+  tags:
+    - server.host
+
+- name: config | hosts
+  become: true
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+    lstrip_blocks: true
+  tags:
+    - server.host
+
+- name: config | set timezone
+  become: True
+  community.general.timezone:
+    name: '{{ server_timezone }}'
+  tags:
+    - server.timezone
+
+- name: config | root password
+  when:
+    - server_root_password | length > 0
+  tags:
+    - server.root
+  block:
+
+    - name: config | set root password
+      ansible.builtin.set_fact:
+        server_root_password_value: '{{ server_root_password }}'
+
+    - name: config | change root password
+      become: true
+      ansible.builtin.user:
+        name: root
+        password: >-
+          {{ server_root_password_value if
+          server_root_password_value == '*' else
+          server_root_password_value | password_hash('sha512', 65534 |
+          random(seed=inventory_hostname) | string) }}

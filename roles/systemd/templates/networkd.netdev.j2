@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+
+[NetDev]
+Name={{ item.name }}
+Kind={{ item.kind }}
+{% if item.kind == 'bond' %}
+
+[Bond]
+Mode={{ item.mode | default('802.3ad') }}
+LACPTransmitRate={{ item.lacp_rate | default('fast') }}
+MIIMonitorSec={{ item.miimon | default('1s') }}
+{% elif item.kind == 'vlan' %}
+
+[VLAN]
+Id={{ item.id }}
+{% endif %}

@@ -1,0 +1,79 @@
+---
+
+- name: firewalld | restart
+  become: true
+  ansible.builtin.systemd_service:
+    name: firewalld
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+
+- name: firewalld | validate
+  become: true
+  ansible.builtin.command:
+    cmd: firewall-cmd --check-config
+  register: systemd_firewalld_config_valid
+  changed_when: true
+  failed_when: systemd_firewalld_config_valid.rc != 0
+  notify:
+    - firewalld | reload
+
+- name: firewalld | reload
+  become: true
+  ansible.builtin.systemd_service:
+    name: firewalld
+    state: reloaded
+
+- name: resolved | restart
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-resolved
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+
+- name: timesyncd | restart
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-timesyncd
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+
+- name: networkd | restart
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-networkd
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+
+- name: resolvconf | disable
+  become: true
+  ansible.builtin.systemd_service:
+    name: resolvconf
+    state: stopped
+    enabled: false
+    masked: true
+  when:
+    - '"resolvconf.service" in ansible_facts.services'
+
+- name: networking | disable
+  become: true
+  ansible.builtin.systemd_service:
+    name: networking
+    enabled: false
+    masked: true
+  when:
+    - ansible_facts.services['networking.service'] is defined
+    # a dangling mask (e.g. Debian images without ifupdown) keeps the unit
+    # listed in service_facts, but there is nothing left to disable
+    - ansible_facts.services['networking.service'].status not in ['masked', 'not-found']
+
+- name: system | reboot
+  become: true
+  ansible.builtin.reboot:

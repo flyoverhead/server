@@ -1,0 +1,26 @@
+
+[DEFAULT]
+
+bantime = {{ fail2ban_bantime }}
+findtime = {{ fail2ban_findtime }}
+maxretry = {{ fail2ban_maxretry }}
+backend = {{ fail2ban_backend }}
+destemail = {{ fail2ban_destemail }}
+sendername = {{ fail2ban_sendername }}
+banaction = firewallcmd-rich-rules[actiontype=<multiport>]
+banaction_allports = firewallcmd-rich-rules[actiontype=<allports>]
+mta = {{ fail2ban_mta }}
+
+[sshd]
+enabled = true
+mode = {{ fail2ban_sshd_mode }}
+port = {{ ansible_port }}
+filter = sshd
+logpath = /var/log/auth.log
+{# the telegram action is only referenced when tasks/config.yml has actually
+   written /etc/fail2ban/action.d/telegram.conf, otherwise fail2ban refuses to
+   start on an unknown action #}
+action = firewallcmd-rich-rules[actiontype=<multiport>]
+{% if fail2ban_telegram_bot_token | length > 0 and fail2ban_telegram_chat_id | length > 0 %}
+         telegram
+{% endif %}

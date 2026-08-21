@@ -1,0 +1,44 @@
+---
+
+namespace: flyoverhead
+name: server
+version: 1.0.0
+readme: README.md
+authors:
+  - flyoverhead
+description: Ansible collection for remote server configuration
+license:
+  - GPL-3.0-only
+tags:
+  - debian
+  - firewall
+  - linux
+  - networking
+  - security
+  - server
+  - ssh
+  - systemd
+dependencies:
+  ansible.posix: '>=1.5.4'
+  community.general: '>=8.0.0'
+
+repository: https://github.com/flyoverhead/server
+issues: https://github.com/flyoverhead/server/issues
+
+# fnmatch patterns against the path relative to the collection root, so nested
+# matches need a leading `*` -- a bare `.DS_Store` only ever matches the one at
+# the top level
+build_ignore:
+  - '*.DS_Store'
+  - .ansible
+  - .ansible-lint
+  - .claude
+  - .pre-commit-config.yaml
+  - .tflint.hcl
+  - .vagrant
+  - .venv
+  - .vscode
+  - .yamllint
+  - Taskfile.yml
+  - Vagrantfile
+  - tests

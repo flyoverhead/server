@@ -1,0 +1,19 @@
+---
+
+- name: ssh | restart service
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ item }}'
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  loop:
+    - ssh
+    - sshd
+
+- name: user | reconnect
+  ansible.builtin.meta: reset_connection
+
+- name: packages | reboot
+  become: true
+  ansible.builtin.reboot:
