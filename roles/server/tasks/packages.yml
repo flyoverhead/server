@@ -48,6 +48,7 @@
       ansible.builtin.command:
         cmd: needrestart -v -n -k
       register: server_kernel_upgrade
+      check_mode: false
       changed_when: >-
         "kernel seems to be up-to-date" not in server_kernel_upgrade.stdout
       notify:
@@ -57,6 +58,7 @@
       ansible.builtin.command:
         cmd: needrestart -v -n -l
       register: server_libraries_upgrade
+      check_mode: false
       changed_when: >-
         "services need to be restarted" not in server_libraries_upgrade.stdout
       notify:

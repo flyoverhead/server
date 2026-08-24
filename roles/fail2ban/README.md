@@ -61,6 +61,17 @@ and keeps its original **Apache-2.0** licence, which is why
 [meta/main.yml](meta/main.yml) differs from the GPL-3.0-only of the rest of the
 collection.
 
+## Check mode
+
+`--check --diff` reports drift in `fail2ban.local`, `jail.local` and the telegram
+action against a host where fail2ban is already installed, and the restart
+handler reports what it would do. Nothing in the role needs special handling in
+a check run.
+
+Against a host without the package the apt install is simulated and the
+configuration is reported as pending, which is accurate -- but fail2ban is not
+there to validate it.
+
 ## Example playbook
 
 ```yaml

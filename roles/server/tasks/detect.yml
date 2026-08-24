@@ -21,6 +21,7 @@
         connect_timeout: 5
         timeout: 10
       register: server_default_ssh_port
+      check_mode: false
       failed_when:
         - '"Timeout when waiting" not in (server_default_ssh_port.msg | default(""))'
         - server_default_ssh_port.failed | default(false)
