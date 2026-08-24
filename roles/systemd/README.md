@@ -90,6 +90,19 @@ parent through `device` are attached to that parent as `Tunnel=` entries.
 - On Debian 11 and older the role installs `libnss-resolve` instead of
   `systemd-resolved`, which is a separate package only from Debian 12 on.
 
+## Check mode
+
+`--check --diff` reports drift in the `resolved`, `timesyncd`, `networkd` and
+`firewalld` configuration against a host this role has already configured. The
+`system | reboot` handler reports that it would reboot and does not.
+
+`firewalld | validate` carries `check_mode: false` because `firewall-cmd
+--check-config` only validates and its `rc` is what `failed_when` reads: a
+skipped `command` is never put through `changed_when`/`failed_when`, so the
+validation -- and the reload it gates -- would silently never happen. In a check
+run the firewalld rules that notified it were not applied, so it validates the
+configuration the host currently has on disk.
+
 ## Example playbook
 
 ```yaml

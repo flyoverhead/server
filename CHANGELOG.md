@@ -2,6 +2,38 @@
 
 All notable changes to `flyoverhead.server`.
 
+## Unreleased
+
+### Fixed
+
+- **Check mode**: `ansible-playbook --check --diff` now completes against a host
+  this collection has already bootstrapped. The roles performed state discovery
+  with modules ansible-core does not execute in a check run and then
+  dereferenced the registered result unconditionally. Nothing in the collection
+  had ever set `check_mode`.
+- **server**: `detect | default ssh port` and `ssh | check custom port` are
+  `ansible.builtin.wait_for`, which declares no check mode support and is
+  therefore skipped in a check run. Both are followed by a task that branches on
+  the registered `msg`, so the play aborted on an undefined attribute. Both
+  probes now carry `check_mode: false` -- they only read a port.
+- **server**: the two `needrestart` calls in `packages.yml` are
+  `ansible.builtin.command`, which skips itself in a check run unless given
+  `creates`/`removes`, so `changed_when` had no `stdout` and the reboot handler
+  was unreachable: a check run said nothing about a host needing a restart. Both
+  now carry `check_mode: false`. The `reboot` handler itself already reports
+  without rebooting.
+- **systemd**: `firewalld | validate` is an `ansible.builtin.command` and was
+  skipped in a check run. A skipped result is never put through
+  `changed_when`/`failed_when`, so the validation -- and the `firewalld | reload`
+  it gates -- silently never happened. It now carries `check_mode: false`.
+
+### Changed
+
+- Every role README gained a `## Check mode` section stating what a check run
+  covers and what it cannot -- notably that `server` cannot be checked against a
+  host that has not been bootstrapped, because `user.yml` only simulates
+  creating the login user every later task connects as.
+
 ## 1.0.0
 
 Initial release. The four remote-configuration roles were extracted from the

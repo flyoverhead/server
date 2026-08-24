@@ -45,6 +45,17 @@ defaults deliberately clone four and enable one of them
   boxes.
 - No tags. The role runs as a whole or not at all.
 
+## Check mode
+
+`--check --diff` reports drift in `.zshrc` and `.p10k.zsh` against a host where
+oh-my-zsh is already installed.
+
+`install | oh-my-zsh` is a `command` with `creates`, which is the one form of
+`command` that reports something useful in a check run: once the install exists
+it reports that it would not run. Against a host without oh-my-zsh the installer
+and the plugin clones are reported as pending without running, so the `.zshrc`
+diff is rendered against a theme and plugin set that are not on the host yet.
+
 ## Example playbook
 
 ```yaml

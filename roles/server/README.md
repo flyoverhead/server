@@ -72,6 +72,28 @@ fact-gathering it depends on.
   it is stable across runs. `server_user.password` is hashed **without** a seed,
   so `user | create` reports `changed` on every run even when nothing differs.
 
+## Check mode
+
+`--check --diff` reports drift in `sshd_config`, `/etc/hosts`, the hostname, the
+timezone and the package set against a host that has already been bootstrapped.
+
+Three kinds of probe carry `check_mode: false`, because they only read and later
+tasks branch on their output: the `wait_for` port checks in `detect.yml` and
+`ssh.yml` -- `wait_for` declares no check mode support, so a skipped result
+would leave the `when` beneath it reading an undefined `msg` -- and the two
+`needrestart` calls in `packages.yml`, whose `stdout` decides whether the reboot
+handler fires. The `reboot` handler itself reports that it would reboot and does
+not. Since a check run only simulates the upgrade, `needrestart` reports what
+the host needs restarting for right now.
+
+It does not work against a host that has not been bootstrapped yet: `user.yml`
+only simulates creating the login user, and every task after it connects as that
+user. Run the role for real once first.
+
+Expect one permanent entry in the diff: `user | create` reports `changed` on
+every run for the unseeded-hash reason above, in a check run as much as a real
+one.
+
 ## Example playbook
 
 ```yaml
