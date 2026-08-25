@@ -2,6 +2,21 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 1.0.2
+
+### Changed
+
+- Collection README only. Status badges for the collection version,
+  ansible-core requirement, license, supported platform and role count, and
+  section headings in an order shared with `flyoverhead.docker` and
+  `flyoverhead.hosting` so the three read as one set. The three destructive
+  behaviours -- the `sshd_config` and `sources.list` replacements and the
+  networkd takeover -- moved under a Gotchas heading and deliberately stayed
+  expanded. The license badge reads `GPL-3.0-only`; the `fail2ban` Apache-2.0
+  exception remains in the License prose, which a badge cannot carry. No role,
+  task, template or default changed; releasing it only so the README that ships
+  in the Galaxy tarball matches the repository.
+
 ## 1.0.1
 
 ### Fixed
