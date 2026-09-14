@@ -2,6 +2,18 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 2.0.1
+
+### Fixed
+
+- **`zsh-autocomplete` completions are registered again.** Its functions live in
+  a `Completions/` directory that only joins `$fpath` when the plugin is
+  sourced, which Oh My Zsh does *after* running `compinit` — so they were never
+  registered and every completion raised
+  `command not found: _autocomplete__unambiguous`. The directory now goes on
+  `$fpath` before the first `compinit`. Rendered only for hosts whose
+  `ohmyzsh_plugins` contains `zsh-autocomplete`.
+
 ## 2.0.0
 
 ### Changed
