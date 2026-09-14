@@ -10,8 +10,10 @@ full upgrade.
 | :--- | :--- | :--- |
 | `server_user` | Login user to create: `name`, `group`, `home`, `password`, `authorized_ssh_keys` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_root_password` | Root password. `'*'` locks the account, an empty string skips the task | `'*'` |
-| `server_apt_mirror` | Base URL written into `/etc/apt/sources.list` | `http://deb.debian.org/debian` |
-| `server_apt_components` | Components appended to every apt line | `[main, contrib]` |
+| `server_apt_mirror` | Base URL the shipped Debian default builds its entries from | `http://deb.debian.org/debian` |
+| `server_apt_components` | Components the shipped Debian default puts on every entry | `[main, contrib]` |
+| `server_*_apt_sources` | Repositories, merged across every variable matching `^server_.+_apt_sources$` | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `server_apt_disable_sources` | Filenames under `sources.list.d` to neutralise | `[debian.sources]` |
 | `server_packages` | Packages installed on every host | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_pip_pyenv_path` | Virtualenv the pip packages go into | `/home/user/.venv` |
 | `server_pip_packages` | Packages installed into that virtualenv | `[pip]` |
@@ -66,8 +68,28 @@ fact-gathering it depends on.
   `PermitRootLogin no` and `PubkeyAuthentication yes`. Every other directive in
   the distribution file is dropped. Note it does not disable password
   authentication.
-- **`/etc/apt/sources.list` is replaced** with three one-line entries built from
-  `server_apt_mirror`. Any `sources.list.d` snippet is left alone.
+- **`/etc/apt/sources.list` is emptied to a comment.** Every repository is a
+  deb822 file under `sources.list.d`, one per merged entry, named
+  `<name>.sources`. A host that had its repositories in `sources.list` before
+  this version loses nothing — the shipped default rewrites the same three
+  Debian suites as drop-ins — but the file itself stops being authoritative.
+- **Repositories merge, they do not override.** Every variable matching
+  `^server_.+_apt_sources$` is merged into one list, so a group adds its
+  repositories under its own name (`server_armbian_apt_sources`) and keeps the
+  shipped base. Overriding `server_default_apt_sources` replaces the base,
+  which is how a non-Debian host swaps the whole layout. Two entries sharing a
+  `name` fail the play.
+- **An entry overwrites an image-shipped file of the same name.** Naming an
+  entry `debian` replaces a vendor `debian.sources`, which is how the duplicate
+  base repository on an Armbian or cloud image gets resolved. For a vendor file
+  under some other name, list it in `server_apt_disable_sources`; it is renamed
+  to `<filename>.disabled` and kept. A filename the role writes itself is
+  skipped, so listing `debian.sources` there is a no-op rather than a way to
+  delete your own base repo.
+- **`signed_by` is optional and the Debian default omits it.** apt then
+  verifies against `trusted.gpg.d`, as `sources.list` always did. A keyring
+  path that does not exist on the host fails `apt update` for every source, so
+  only set it where the keyring is known present.
 - The root password is hashed with a salt seeded from `inventory_hostname`, so
   it is stable across runs. `server_user.password` is hashed **without** a seed,
   so `user | create` reports `changed` on every run even when nothing differs.
