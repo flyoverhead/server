@@ -1,6 +1,6 @@
 # `flyoverhead.server`
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-Debian%2012%20%7C%2013-A81D33?logo=debian&logoColor=white)](#-supported-os)
@@ -104,8 +104,11 @@ role, collected once here:
   (`Port`, `PermitRootLogin no`, `PubkeyAuthentication yes`). Every other
   directive in the distribution file is dropped, and password authentication is
   *not* disabled.
-- **`server` replaces `/etc/apt/sources.list`** with entries built from
-  `server_apt_mirror`. `sources.list.d` is untouched.
+- **`server` empties `/etc/apt/sources.list`** to a comment and writes every
+  repository as a deb822 drop-in under `sources.list.d`, one file per merged
+  `server_*_apt_sources` entry. An entry overwrites an image-shipped file of
+  the same name; anything not named by an entry or by
+  `server_apt_disable_sources` is left alone.
 - **`systemd` with a non-empty `systemd_networkd` takes networking over.** It
   deletes every file under `/etc/systemd/network` it did not just write,
   overwrites `/etc/network/interfaces`, masks the legacy `networking` service

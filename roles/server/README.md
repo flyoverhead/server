@@ -10,8 +10,10 @@ full upgrade.
 | :--- | :--- | :--- |
 | `server_user` | Login user to create: `name`, `group`, `home`, `password`, `authorized_ssh_keys` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_root_password` | Root password. `'*'` locks the account, an empty string skips the task | `'*'` |
-| `server_apt_mirror` | Base URL written into `/etc/apt/sources.list` | `http://deb.debian.org/debian` |
-| `server_apt_components` | Components appended to every apt line | `[main, contrib]` |
+| `server_apt_mirror` | Base URL the shipped Debian default builds its entries from | `http://deb.debian.org/debian` |
+| `server_apt_components` | Components the shipped Debian default puts on every entry | `[main, contrib]` |
+| `server_*_apt_sources` | Repositories, merged across every variable matching `^server_.+_apt_sources$` | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `server_apt_disable_sources` | Filenames under `sources.list.d` to neutralise | `[armbian.list]` |
 | `server_packages` | Packages installed on every host | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_pip_pyenv_path` | Virtualenv the pip packages go into | `/home/user/.venv` |
 | `server_pip_packages` | Packages installed into that virtualenv | `[pip]` |
@@ -66,8 +68,36 @@ fact-gathering it depends on.
   `PermitRootLogin no` and `PubkeyAuthentication yes`. Every other directive in
   the distribution file is dropped. Note it does not disable password
   authentication.
-- **`/etc/apt/sources.list` is replaced** with three one-line entries built from
-  `server_apt_mirror`. Any `sources.list.d` snippet is left alone.
+- **`/etc/apt/sources.list` is emptied to a comment.** Every repository is a
+  deb822 file under `sources.list.d`, one per merged entry, named
+  `<name>.sources`. A host that had its repositories in `sources.list` before
+  this version loses nothing — the shipped default rewrites the same three
+  Debian suites as drop-ins — but the file itself stops being authoritative.
+- **Repositories merge, they do not override.** Every variable matching
+  `^server_.+_apt_sources$` is merged into one list, so a group adds its
+  repositories under its own name (`server_armbian_apt_sources`) and keeps the
+  shipped base. Overriding `server_default_apt_sources` replaces the base,
+  which is how a non-Debian host swaps the whole layout. Two entries sharing a
+  `name` fail the play.
+- **An entry overwrites an image-shipped file of the same name.** Naming an
+  entry `debian` replaces a vendor `debian.sources`, which is how the duplicate
+  base repository on an Armbian or cloud image gets resolved. This only works
+  when the vendor file is deb822 (`<name>.sources`): a one-line vendor
+  `armbian.list` is untouched by an `armbian` entry -- the role writes
+  `armbian.sources` beside it and apt reads both, recreating the duplication
+  this change is meant to remove. For a vendor file under some other name, or
+  a one-line `.list` file, list it in `server_apt_disable_sources`; it is
+  renamed to `<filename>.disabled` and kept. A filename the role writes itself
+  is skipped, so listing `debian.sources` there is a no-op rather than a way
+  to delete your own base repo.
+- **`signed_by` is optional per entry, and the shipped Debian default sets
+  it.** Both `debian` and `debian-security` pin
+  `/usr/share/keyrings/debian-archive-keyring.gpg`, scoping each entry to the
+  Debian archive key instead of letting it verify against every key in
+  `trusted.gpg.d`. A `Signed-By` path that does not exist on the host fails
+  **only that entry** -- and `apt-get update` still exits 0, so the breakage
+  is silent to a caller checking exit status. Only point `signed_by` at a
+  keyring known present.
 - The root password is hashed with a salt seeded from `inventory_hostname`, so
   it is stable across runs. `server_user.password` is hashed **without** a seed,
   so `user | create` reports `changed` on every run even when nothing differs.
@@ -75,7 +105,8 @@ fact-gathering it depends on.
 ## Check mode
 
 `--check --diff` reports drift in `sshd_config`, `/etc/hosts`, the hostname, the
-timezone and the package set against a host that has already been bootstrapped.
+timezone, the apt sources drop-ins and the package set against a host that has
+already been bootstrapped.
 
 Three kinds of probe carry `check_mode: false`, because they only read and later
 tasks branch on their output: the `wait_for` port checks in `detect.yml` and

@@ -15,13 +15,54 @@ server_user:
 # root password task entirely.
 server_root_password: '*'
 
-# apt sources
+# apt mirror
 server_apt_mirror: http://mirror.yandex.ru/debian
 server_apt_components:
   - main
   - contrib
   - non-free
   - non-free-firmware
+
+# apt sources. Every variable matching `^server_.+_apt_sources$` is merged
+# into one list by the `community.general.merge_variables` lookup in
+# tasks/detect.yml, so a caller adds repositories under its own name
+# (`server_armbian_apt_sources`, `server_vendor_apt_sources`, ...) instead of
+# overriding this one and losing the base. Each entry becomes one deb822
+# stanza in /etc/apt/sources.list.d/<name>.sources; every field but `name`
+# takes a scalar or a list.
+#
+# This default is the Debian layout -- note the `-security` suffix, which is
+# a Debian-ism: Ubuntu serves its security suite from the same URI, so an
+# Ubuntu caller replaces this variable with a single four-suite entry. Ubuntu
+# support is an untested capability of this interface, not a validated
+# platform -- see meta/main.yml.
+#
+# Both entries pin `signed_by` to the Debian archive keyring rather than
+# leaving apt to verify against every key in `trusted.gpg.d`. A `Signed-By`
+# path that turns out to be absent fails only that entry, silently --
+# `apt-get update` still exits 0 -- so only point it at a keyring known
+# present; `debian-archive-keyring.gpg` is installed by the
+# `debian-archive-keyring` package on every supported target.
+server_default_apt_sources:
+  - name: debian
+    uris: '{{ server_apt_mirror }}'
+    suites:
+      - '{{ ansible_distribution_release }}'
+      - '{{ ansible_distribution_release }}-updates'
+    components: '{{ server_apt_components }}'
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+  - name: debian-security
+    uris: '{{ server_apt_mirror }}-security'
+    suites:
+      - '{{ ansible_distribution_release }}-security'
+    components: '{{ server_apt_components }}'
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+
+# Filenames under /etc/apt/sources.list.d to neutralise, for an image whose
+# own base repository is named something this role does not write. Each is
+# renamed to <filename>.disabled, which apt ignores. A filename this role
+# writes itself is skipped.
+server_apt_disable_sources: []
 
 # packages
 server_packages:

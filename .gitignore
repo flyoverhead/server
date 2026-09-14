@@ -7,3 +7,5 @@
 .yamllint
 .DS_Store
 .ansible
+__pycache__/
+.superpowers/

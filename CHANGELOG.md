@@ -2,6 +2,59 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 2.0.0
+
+### Changed
+
+- **server**: apt configuration is now one merged, distro-agnostic list, and
+  `/etc/apt/sources.list` is emptied to a comment in favour of `sources.list.d`
+  drop-ins.
+
+  `sources.list.j2` could express exactly one shape — three Debian suites off
+  one `server_apt_mirror`, with `-security` concatenated onto that URL for the
+  security suite. Ubuntu serves security from the same URI and Armbian has no
+  security suite at all plus its own component names, so neither fitted.
+  (Ubuntu here is an untested capability of the new interface, not a
+  supported platform -- `meta/main.yml` still declares Debian only.)
+
+  Repositories are now described by any variable matching
+  `^server_.+_apt_sources$`, merged into one list with
+  `community.general.merge_variables` — the idiom the `systemd` role already
+  uses for firewalld. Merging rather than overriding is deliberate: Ansible
+  cannot merge lists across group_vars, so a single variable would mean a group
+  adding one repository silently dropping the base. One entry is one file is
+  one deb822 stanza; every field but `name` takes a scalar or a list. Two
+  entries sharing a `name` fail the play; last-wins was rejected too, since
+  `merge_variables` documents no ordering guarantee (it happens to sort
+  variable names alphabetically, which is not a semantic worth relying on).
+
+  `server_apt_mirror` and `server_apt_components` survive, now feeding only the
+  shipped `server_default_apt_sources`, so a fleet whose hosts differ by mirror
+  hostname keeps its one-line overrides.
+
+  New `server_apt_disable_sources` renames image-shipped source files out of
+  the way, filtered against the names this role writes.
+
+  Both shipped entries also carry `signed_by`, pinned to
+  `/usr/share/keyrings/debian-archive-keyring.gpg`, scoping each to the Debian
+  archive key rather than trusting everything in `trusted.gpg.d`. An earlier
+  draft omitted it, on the theory that an absent `Signed-By` path fails `apt
+  update` for every source on the host; measured on a live Debian 13 host,
+  a broken path fails only that one entry, and `apt-get update` still exits 0
+  regardless -- the failure is silent either way, which is the actual argument
+  for pinning a keyring you know is present rather than the one against
+  omitting it.
+
+### Migration
+
+- Callers setting `server_apt_mirror` or `server_apt_components` need no change.
+- Callers relying on `/etc/apt/sources.list` being authoritative do: it is now
+  a comment. The same repositories are written as drop-ins.
+- An image that ships its own base repository in `sources.list.d` was
+  previously duplicated against `sources.list`. If it is named
+  `debian.sources`, the default entry now overwrites it. If it is named
+  anything else, list it in `server_apt_disable_sources`.
+
 ## 1.0.2
 
 ### Changed

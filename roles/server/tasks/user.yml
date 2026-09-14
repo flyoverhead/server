@@ -27,14 +27,66 @@
     create_home: true
     state: present
 
-- name: user | apt sources list
+- name: user | suppress apt sources list
   become: true
-  ansible.builtin.template:
-    src: sources.list.j2
+  ansible.builtin.copy:
     dest: /etc/apt/sources.list
+    content: |
+      #
+      # Ansible managed
+      #
+
+      # DO NOT EDIT HERE
+      # apt sources now live as drop-ins under /etc/apt/sources.list.d
     owner: root
     group: root
     mode: '0644'
+
+- name: user | check apt sources to disable
+  become: true
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/{{ item }}
+  register: server_apt_disable_stat
+  loop: >-
+    {{ server_apt_disable_sources | difference(server_apt_sources |
+    map(attribute='name') | map('regex_replace', '$', '.sources') | list) }}
+
+- name: user | preserve apt sources to disable
+  become: true
+  ansible.builtin.copy:
+    src: '{{ item.stat.path }}'
+    dest: '{{ item.stat.path }}.disabled'
+    remote_src: true
+    mode: preserve
+  loop: '{{ server_apt_disable_stat.results }}'
+  loop_control:
+    label: '{{ item.item }}'
+  when:
+    - item.stat.exists
+
+- name: user | disable apt sources
+  become: true
+  ansible.builtin.file:
+    path: '{{ item.stat.path }}'
+    state: absent
+  loop: '{{ server_apt_disable_stat.results }}'
+  loop_control:
+    label: '{{ item.item }}'
+  when:
+    - item.stat.exists
+
+- name: user | apt sources
+  become: true
+  ansible.builtin.template:
+    src: apt.sources.j2
+    dest: /etc/apt/sources.list.d/{{ item.name }}.sources
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  loop: '{{ server_apt_sources }}'
+  loop_control:
+    label: '{{ item.name }}'
 
 - name: user | install sudo
   become: true

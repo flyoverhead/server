@@ -1,0 +1,15 @@
+{{ ansible_managed | comment }}
+
+Types: {{ [item.types | default('deb')] | flatten | join(' ') }}
+URIs: {{ [item.uris] | flatten | join(' ') }}
+Suites: {{ [item.suites] | flatten | join(' ') }}
+Components: {{ [item.components] | flatten | join(' ') }}
+{% if item.architectures | default([]) | length > 0 %}
+Architectures: {{ [item.architectures] | flatten | join(' ') }}
+{% endif %}
+{% if item.signed_by | default('') | length > 0 %}
+Signed-By: {{ [item.signed_by] | flatten | join(' ') }}
+{% endif %}
+{% if item.enabled is defined %}
+Enabled: {{ 'yes' if item.enabled else 'no' }}
+{% endif %}
