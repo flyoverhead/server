@@ -1,3 +1,0 @@
-deb {{ server_apt_mirror }} {{ ansible_distribution_release }} {{ server_apt_components | join(' ') }}
-deb {{ server_apt_mirror }} {{ ansible_distribution_release }}-updates {{ server_apt_components | join(' ') }}
-deb {{ server_apt_mirror }}-security {{ ansible_distribution_release }}-security {{ server_apt_components | join(' ') }}

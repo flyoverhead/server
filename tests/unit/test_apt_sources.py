@@ -105,5 +105,6 @@ def test_required_fields_are_not_silently_empty(missing):
         render(item)
 
 
-def test_superseded_draft_template_is_gone():
+def test_legacy_templates_are_gone():
     assert not (TEMPLATE_DIR / "repository.sources.j2").exists()
+    assert not (TEMPLATE_DIR / "sources.list.j2").exists()
