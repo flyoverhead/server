@@ -35,6 +35,16 @@ All notable changes to `flyoverhead.server`.
   New `server_apt_disable_sources` renames image-shipped source files out of
   the way, filtered against the names this role writes.
 
+  Both shipped entries also carry `signed_by`, pinned to
+  `/usr/share/keyrings/debian-archive-keyring.gpg`, scoping each to the Debian
+  archive key rather than trusting everything in `trusted.gpg.d`. An earlier
+  draft omitted it, on the theory that an absent `Signed-By` path fails `apt
+  update` for every source on the host; measured on a live Debian 13 host,
+  a broken path fails only that one entry, and `apt-get update` still exits 0
+  regardless -- the failure is silent either way, which is the actual argument
+  for pinning a keyring you know is present rather than the one against
+  omitting it.
+
 ### Migration
 
 - Callers setting `server_apt_mirror` or `server_apt_components` need no change.

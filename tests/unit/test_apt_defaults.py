@@ -49,11 +49,11 @@ def test_default_entries_carry_every_key_detect_requires():
         assert not missing, f"{entry.get('name', entry)} missing {missing}"
 
 
-def test_default_base_entry_carries_no_keyring():
-    # A Signed-By path that turns out to be absent fails apt update for every
-    # source on the host, and today's sources.list has no keyring at all.
+def test_default_entries_pin_the_debian_archive_keyring():
+    # Scope each shipped entry to the Debian archive keyring specifically,
+    # rather than letting it verify against every key in trusted.gpg.d.
     for entry in SHIPPED["server_default_apt_sources"]:
-        assert "signed_by" not in entry
+        assert entry.get("signed_by") == "/usr/share/keyrings/debian-archive-keyring.gpg"
 
 
 def test_disable_list_defaults_to_empty():

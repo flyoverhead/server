@@ -90,10 +90,14 @@ fact-gathering it depends on.
   renamed to `<filename>.disabled` and kept. A filename the role writes itself
   is skipped, so listing `debian.sources` there is a no-op rather than a way
   to delete your own base repo.
-- **`signed_by` is optional and the Debian default omits it.** apt then
-  verifies against `trusted.gpg.d`, as `sources.list` always did. A keyring
-  path that does not exist on the host fails `apt update` for every source, so
-  only set it where the keyring is known present.
+- **`signed_by` is optional per entry, and the shipped Debian default sets
+  it.** Both `debian` and `debian-security` pin
+  `/usr/share/keyrings/debian-archive-keyring.gpg`, scoping each entry to the
+  Debian archive key instead of letting it verify against every key in
+  `trusted.gpg.d`. A `Signed-By` path that does not exist on the host fails
+  **only that entry** -- and `apt-get update` still exits 0, so the breakage
+  is silent to a caller checking exit status. Only point `signed_by` at a
+  keyring known present.
 - The root password is hashed with a salt seeded from `inventory_hostname`, so
   it is stable across runs. `server_user.password` is hashed **without** a seed,
   so `user | create` reports `changed` on every run even when nothing differs.

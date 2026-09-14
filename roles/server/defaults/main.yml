@@ -36,6 +36,13 @@ server_apt_components:
 # Ubuntu caller replaces this variable with a single four-suite entry. Ubuntu
 # support is an untested capability of this interface, not a validated
 # platform -- see meta/main.yml.
+#
+# Both entries pin `signed_by` to the Debian archive keyring rather than
+# leaving apt to verify against every key in `trusted.gpg.d`. A `Signed-By`
+# path that turns out to be absent fails only that entry, silently --
+# `apt-get update` still exits 0 -- so only point it at a keyring known
+# present; `debian-archive-keyring.gpg` is installed by the
+# `debian-archive-keyring` package on every supported target.
 server_default_apt_sources:
   - name: debian
     uris: '{{ server_apt_mirror }}'
@@ -43,11 +50,13 @@ server_default_apt_sources:
       - '{{ ansible_distribution_release }}'
       - '{{ ansible_distribution_release }}-updates'
     components: '{{ server_apt_components }}'
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
   - name: debian-security
     uris: '{{ server_apt_mirror }}-security'
     suites:
       - '{{ ansible_distribution_release }}-security'
     components: '{{ server_apt_components }}'
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
 
 # Filenames under /etc/apt/sources.list.d to neutralise, for an image whose
 # own base repository is named something this role does not write. Each is
