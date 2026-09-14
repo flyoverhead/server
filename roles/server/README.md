@@ -13,7 +13,7 @@ full upgrade.
 | `server_apt_mirror` | Base URL the shipped Debian default builds its entries from | `http://deb.debian.org/debian` |
 | `server_apt_components` | Components the shipped Debian default puts on every entry | `[main, contrib]` |
 | `server_*_apt_sources` | Repositories, merged across every variable matching `^server_.+_apt_sources$` | Definition example in [defaults/main.yml](defaults/main.yml) |
-| `server_apt_disable_sources` | Filenames under `sources.list.d` to neutralise | `[debian.sources]` |
+| `server_apt_disable_sources` | Filenames under `sources.list.d` to neutralise | `[armbian.list]` |
 | `server_packages` | Packages installed on every host | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_pip_pyenv_path` | Virtualenv the pip packages go into | `/home/user/.venv` |
 | `server_pip_packages` | Packages installed into that virtualenv | `[pip]` |
@@ -81,11 +81,15 @@ fact-gathering it depends on.
   `name` fail the play.
 - **An entry overwrites an image-shipped file of the same name.** Naming an
   entry `debian` replaces a vendor `debian.sources`, which is how the duplicate
-  base repository on an Armbian or cloud image gets resolved. For a vendor file
-  under some other name, list it in `server_apt_disable_sources`; it is renamed
-  to `<filename>.disabled` and kept. A filename the role writes itself is
-  skipped, so listing `debian.sources` there is a no-op rather than a way to
-  delete your own base repo.
+  base repository on an Armbian or cloud image gets resolved. This only works
+  when the vendor file is deb822 (`<name>.sources`): a one-line vendor
+  `armbian.list` is untouched by an `armbian` entry -- the role writes
+  `armbian.sources` beside it and apt reads both, recreating the duplication
+  this change is meant to remove. For a vendor file under some other name, or
+  a one-line `.list` file, list it in `server_apt_disable_sources`; it is
+  renamed to `<filename>.disabled` and kept. A filename the role writes itself
+  is skipped, so listing `debian.sources` there is a no-op rather than a way
+  to delete your own base repo.
 - **`signed_by` is optional and the Debian default omits it.** apt then
   verifies against `trusted.gpg.d`, as `sources.list` always did. A keyring
   path that does not exist on the host fails `apt update` for every source, so
@@ -97,7 +101,8 @@ fact-gathering it depends on.
 ## Check mode
 
 `--check --diff` reports drift in `sshd_config`, `/etc/hosts`, the hostname, the
-timezone and the package set against a host that has already been bootstrapped.
+timezone, the apt sources drop-ins and the package set against a host that has
+already been bootstrapped.
 
 Three kinds of probe carry `check_mode: false`, because they only read and later
 tasks branch on their output: the `wait_for` port checks in `detect.yml` and

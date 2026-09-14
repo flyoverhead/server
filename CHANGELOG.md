@@ -14,6 +14,8 @@ All notable changes to `flyoverhead.server`.
   one `server_apt_mirror`, with `-security` concatenated onto that URL for the
   security suite. Ubuntu serves security from the same URI and Armbian has no
   security suite at all plus its own component names, so neither fitted.
+  (Ubuntu here is an untested capability of the new interface, not a
+  supported platform -- `meta/main.yml` still declares Debian only.)
 
   Repositories are now described by any variable matching
   `^server_.+_apt_sources$`, merged into one list with
@@ -22,7 +24,9 @@ All notable changes to `flyoverhead.server`.
   cannot merge lists across group_vars, so a single variable would mean a group
   adding one repository silently dropping the base. One entry is one file is
   one deb822 stanza; every field but `name` takes a scalar or a list. Two
-  entries sharing a `name` fail the play.
+  entries sharing a `name` fail the play; last-wins was rejected too, since
+  `merge_variables` documents no ordering guarantee (it happens to sort
+  variable names alphabetically, which is not a semantic worth relying on).
 
   `server_apt_mirror` and `server_apt_components` survive, now feeding only the
   shipped `server_default_apt_sources`, so a fleet whose hosts differ by mirror

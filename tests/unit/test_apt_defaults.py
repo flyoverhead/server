@@ -42,6 +42,13 @@ def test_default_covers_release_updates_and_security():
     assert security["uris"] == "{{ server_apt_mirror }}-security"
 
 
+def test_default_entries_carry_every_key_detect_requires():
+    required = {"name", "uris", "suites", "components"}
+    for entry in SHIPPED["server_default_apt_sources"]:
+        missing = required - entry.keys()
+        assert not missing, f"{entry.get('name', entry)} missing {missing}"
+
+
 def test_default_base_entry_carries_no_keyring():
     # A Signed-By path that turns out to be absent fails apt update for every
     # source on the host, and today's sources.list has no keyring at all.

@@ -15,7 +15,7 @@ server_user:
 # root password task entirely.
 server_root_password: '*'
 
-# apt sources
+# apt mirror
 server_apt_mirror: http://mirror.yandex.ru/debian
 server_apt_components:
   - main
@@ -33,7 +33,9 @@ server_apt_components:
 #
 # This default is the Debian layout -- note the `-security` suffix, which is
 # a Debian-ism: Ubuntu serves its security suite from the same URI, so an
-# Ubuntu caller replaces this variable with a single four-suite entry.
+# Ubuntu caller replaces this variable with a single four-suite entry. Ubuntu
+# support is an untested capability of this interface, not a validated
+# platform -- see meta/main.yml.
 server_default_apt_sources:
   - name: debian
     uris: '{{ server_apt_mirror }}'
