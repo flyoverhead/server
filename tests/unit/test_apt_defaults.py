@@ -1,0 +1,57 @@
+"""The shipped defaults.
+
+These are checked as data rather than through a play because the values are
+Jinja strings the role resolves at run time; what matters here is the shape
+and the naming convention, both of which a play would not fail loudly on.
+"""
+
+import pathlib
+import re
+
+import yaml
+
+DEFAULTS = (
+    pathlib.Path(__file__).resolve().parents[2] / "roles/server/defaults/main.yml"
+)
+
+MERGE_PATTERN = re.compile(r"^server_.+_apt_sources$")
+
+with open(DEFAULTS, encoding="utf-8") as handle:
+    SHIPPED = yaml.safe_load(handle)
+
+
+def test_default_sources_follow_the_merge_convention():
+    assert MERGE_PATTERN.match("server_default_apt_sources")
+    assert "server_default_apt_sources" in SHIPPED
+
+
+def test_merged_result_name_cannot_re_merge_into_itself():
+    assert not MERGE_PATTERN.match("server_apt_sources")
+
+
+def test_default_covers_release_updates_and_security():
+    entries = SHIPPED["server_default_apt_sources"]
+    assert [entry["name"] for entry in entries] == ["debian", "debian-security"]
+
+    base, security = entries
+    assert base["suites"] == [
+        "{{ ansible_distribution_release }}",
+        "{{ ansible_distribution_release }}-updates",
+    ]
+    assert security["suites"] == ["{{ ansible_distribution_release }}-security"]
+    assert security["uris"] == "{{ server_apt_mirror }}-security"
+
+
+def test_default_base_entry_carries_no_keyring():
+    # A Signed-By path that turns out to be absent fails apt update for every
+    # source on the host, and today's sources.list has no keyring at all.
+    for entry in SHIPPED["server_default_apt_sources"]:
+        assert "signed_by" not in entry
+
+
+def test_disable_list_defaults_to_empty():
+    assert SHIPPED["server_apt_disable_sources"] == []
+
+
+def test_superseded_variable_is_gone():
+    assert "server_apt_repositories" not in SHIPPED

@@ -39,3 +39,20 @@
     - '"Connection refused" not in (server_check_connection_result.msg | default(""))'
     - '"Permission denied" not in (server_check_connection_result.msg | default(""))'
     - '"pong" not in (server_check_connection_result.ping | default(""))'
+
+- name: detect | set server_apt_sources fact
+  ansible.builtin.set_fact:
+    server_apt_sources: >-
+      {{ lookup('community.general.merge_variables',
+      '^server_.+_apt_sources$',
+      initial_value=[]) }}
+
+- name: detect | assert unique apt source names
+  ansible.builtin.assert:
+    that:
+      - server_apt_sources | map(attribute='name') | list ==
+        server_apt_sources | map(attribute='name') | unique | list
+    fail_msg: >-
+      Two merged apt source entries share a name and would write the same
+      file: {{ server_apt_sources | map(attribute='name') | list }}
+    quiet: true
