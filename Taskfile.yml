@@ -30,3 +30,8 @@ tasks:
     internal: true
     cmds:
       - ansible-playbook -i inventory.yml playbook.yml
+
+  test:
+    dir: tests/unit
+    cmds:
+      - python3 -m pytest -q
