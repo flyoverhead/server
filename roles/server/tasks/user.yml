@@ -31,7 +31,13 @@
   become: true
   ansible.builtin.copy:
     dest: /etc/apt/sources.list
-    content: "{{ ansible_managed | comment }}\n"
+    content: |
+      #
+      # Ansible managed
+      #
+
+      # DO NOT EDIT HERE
+      # apt sources now live as drop-ins under /etc/apt/sources.list.d
     owner: root
     group: root
     mode: '0644'
