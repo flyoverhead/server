@@ -8,7 +8,7 @@ Components: {{ [item.components] | flatten | join(' ') }}
 Architectures: {{ [item.architectures] | flatten | join(' ') }}
 {% endif %}
 {% if item.signed_by | default('') | length > 0 %}
-Signed-By: {{ item.signed_by }}
+Signed-By: {{ [item.signed_by] | flatten | join(' ') }}
 {% endif %}
 {% if item.enabled is defined %}
 Enabled: {{ 'yes' if item.enabled else 'no' }}

@@ -42,6 +42,36 @@ def test_lists_join_on_spaces():
     assert "Components: main contrib non-free\n" in out
 
 
+def test_uris_as_list():
+    out = render(
+        dict(
+            MINIMAL,
+            uris=["http://mirror.yandex.ru/debian", "http://mirror2.yandex.ru/debian"],
+        )
+    )
+    assert "URIs: http://mirror.yandex.ru/debian http://mirror2.yandex.ru/debian\n" in out
+
+
+def test_architectures_as_list():
+    out = render(
+        dict(
+            MINIMAL,
+            architectures=["arm64", "amd64"],
+        )
+    )
+    assert "Architectures: arm64 amd64\n" in out
+
+
+def test_signed_by_as_list():
+    out = render(
+        dict(
+            MINIMAL,
+            signed_by=["/usr/share/keyrings/debian-archive-keyring.gpg", "/usr/share/keyrings/armbian-archive-keyring.gpg"],
+        )
+    )
+    assert "Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg /usr/share/keyrings/armbian-archive-keyring.gpg\n" in out
+
+
 def test_optional_fields_are_omitted():
     out = render(MINIMAL)
     for absent in ("Architectures:", "Signed-By:", "Enabled:"):
