@@ -63,7 +63,29 @@ def test_uv_install_is_version_pinned_and_arch_mapped():
 
 def test_uv_install_reruns_when_the_pinned_version_changes():
     task = _by_name(UV, "uv | install")
-    assert "server_uv_version not in" in str(task["when"])
+    when = str(task["when"])
+    assert "server_uv_version !=" in when
+    assert "split" in when
+
+
+def test_uv_install_guard_is_not_a_bare_substring_test():
+    task = _by_name(UV, "uv | install")
+    when = str(task["when"])
+    assert " not in " not in when
+    assert " in " not in when
+
+
+def test_uv_comes_from_server_uv_bin_not_the_bare_path():
+    for task in PACKAGES + UV:
+        cmd = str(task.get("ansible.builtin.command", {}).get("cmd", ""))
+        if not cmd:
+            continue
+        assert not re.match(r"^uv(\s|$)", cmd.strip())
+        assert "{{ server_uv_bin }}" in cmd
+
+    dest = _by_name(UV, "uv | install")["ansible.builtin.unarchive"]["dest"]
+    assert dest == "{{ server_uv_bin | dirname }}"
+    assert DEFAULTS["server_uv_bin"] == "/usr/local/bin/uv"
 
 
 def test_uv_include_runs_under_the_pip_tag_too():

@@ -34,6 +34,7 @@ build_ignore:
   - .ansible-lint
   - .claude
   - .pre-commit-config.yaml
+  - .superpowers
   - .tflint.hcl
   - .vagrant
   - .venv

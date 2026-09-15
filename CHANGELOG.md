@@ -15,6 +15,12 @@ All notable changes to `flyoverhead.server`.
 - `server_pip_packages` now defaults to `[]` rather than `[pip]`, and the
   install task is skipped when it is empty. The virtualenv is still created
   unconditionally, because `ohmyzsh`'s `zshrc.j2` puts its `bin` on `PATH`.
+- **`--check` no longer reports what these tasks would do.** The venv and
+  package-install tasks are `ansible.builtin.command`, which has no check-mode
+  support, so both now show as *skipped* rather than *changed* under
+  `--check --diff`; `ansible.builtin.pip` reported real check-mode diffs. The
+  `uv | install` task's `ansible.builtin.unarchive` skips itself in check mode
+  too, for the same reason.
 
 ### Added
 

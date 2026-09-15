@@ -85,6 +85,8 @@ server_pip_pyenv_path: '{{ ansible_user_dir }}/.venv'
 server_pip_packages: []
 
 # uv
+server_uv_bin: /usr/local/bin/uv
+
 server_uv_version: 0.12.14
 
 server_uv_arch:

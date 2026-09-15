@@ -2,7 +2,7 @@
 
 - name: uv | check installed version
   ansible.builtin.command:
-    cmd: uv --version
+    cmd: '{{ server_uv_bin }} --version'
   register: server_uv_installed
   changed_when: false
   failed_when: false
@@ -13,10 +13,10 @@
 - name: uv | install
   become: true
   when:
-    - server_uv_version not in (server_uv_installed.stdout | default(''))
+    - server_uv_version != ((server_uv_installed.stdout | default('')).split() + ['', ''])[1]
   ansible.builtin.unarchive:
     src: '{{ server_uv_url }}'
-    dest: /usr/local/bin
+    dest: '{{ server_uv_bin | dirname }}'
     remote_src: true
     extra_opts:
       - --strip-components=1
