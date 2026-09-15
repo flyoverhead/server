@@ -60,6 +60,11 @@
 - name: uv
   ansible.builtin.include_tasks:
     file: uv.yml
+    apply:
+      tags:
+        - server.packages
+        - server.pip
+        - server.uv
   tags:
     - server.packages
     - server.pip

@@ -69,6 +69,15 @@ def test_uv_install_reruns_when_the_pinned_version_changes():
 def test_uv_include_runs_under_the_pip_tag_too():
     task = _by_name(MAIN, "uv")
     assert {"server.pip", "server.uv"} <= set(task["tags"])
+    apply_tags = task["ansible.builtin.include_tasks"]["apply"]["tags"]
+    assert {"server.pip", "server.packages"} <= set(apply_tags)
+
+
+def test_detect_include_selects_uv_under_both_tag_lists():
+    task = _by_name(MAIN, "detect")
+    assert "server.uv" in task["tags"]
+    apply_tags = task["ansible.builtin.include_tasks"]["apply"]["tags"]
+    assert "server.uv" in apply_tags
 
 
 def test_python3_pip_is_gone_from_the_package_list():
