@@ -12,6 +12,49 @@
   when:
     - ansible_facts.distribution_release is not defined
 
+- name: user | set server_apt_sources fact
+  ansible.builtin.set_fact:
+    server_apt_sources: >-
+      {{ lookup('community.general.merge_variables',
+      '^server_.+_apt_sources$',
+      initial_value=[]) }}
+
+- name: user | assert apt sources were merged
+  ansible.builtin.assert:
+    that:
+      - server_apt_sources | length > 0
+    fail_msg: >-
+      server_apt_sources merged to an empty list. Every apt source variable
+      must match ^server_.+_apt_sources$ to be picked up by
+      community.general.merge_variables -- check the name of whatever
+      replaced server_default_apt_sources.
+    quiet: true
+
+- name: user | assert required apt source keys
+  ansible.builtin.assert:
+    that:
+      - server_apt_sources | rejectattr('name', 'defined') | list | length == 0
+      - server_apt_sources | rejectattr('uris', 'defined') | list | length == 0
+      - server_apt_sources | rejectattr('suites', 'defined') | list | length == 0
+      - server_apt_sources | rejectattr('components', 'defined') | list | length == 0
+    fail_msg: >-
+      Every merged apt source entry needs name, uris, suites and components;
+      offending entries: {{ (server_apt_sources | rejectattr('name', 'defined') | list) +
+      (server_apt_sources | rejectattr('uris', 'defined') | list) +
+      (server_apt_sources | rejectattr('suites', 'defined') | list) +
+      (server_apt_sources | rejectattr('components', 'defined') | list) }}
+    quiet: true
+
+- name: user | assert unique apt source names
+  ansible.builtin.assert:
+    that:
+      - server_apt_sources | map(attribute='name') | list ==
+        server_apt_sources | map(attribute='name') | unique | list
+    fail_msg: >-
+      Two merged apt source entries share a name and would write the same
+      file: {{ server_apt_sources | map(attribute='name') | list }}
+    quiet: true
+
 - name: user | group
   become: true
   ansible.builtin.group:
