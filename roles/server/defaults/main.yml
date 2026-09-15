@@ -76,15 +76,26 @@ server_packages:
   - python3
   - python3-dev
   - python3-venv
-  - python3-pip
   - python3-requests
 
 # pip virtual environment path
 server_pip_pyenv_path: '{{ ansible_user_dir }}/.venv'
 
 # pip packages
-server_pip_packages:
-  - pip
+server_pip_packages: []
+
+# uv
+server_uv_bin: /usr/local/bin/uv
+
+server_uv_version: 0.12.14
+
+server_uv_arch:
+  x86_64: x86_64
+  aarch64: aarch64
+
+server_uv_url: >-
+  https://github.com/astral-sh/uv/releases/download/{{ server_uv_version }}/uv-{{
+  server_uv_arch[ansible_architecture] }}-unknown-linux-gnu.tar.gz
 
 server_timezone: Europe/Moscow
 

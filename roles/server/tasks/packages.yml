@@ -10,13 +10,29 @@
   tags:
     - server.packages
 
-- name: packages | install pip
-  ansible.builtin.pip:
-    name: '{{ server_pip_packages }}'
-    state: present
-    virtualenv: '{{ server_pip_pyenv_path }}'
-    virtualenv_command: python3 -m venv
-    extra_args: --upgrade
+- name: packages | create virtualenv
+  ansible.builtin.command:
+    cmd: >-
+      {{ server_uv_bin }} venv
+      --python python3
+      --no-python-downloads
+      {{ server_pip_pyenv_path }}
+    creates: '{{ server_pip_pyenv_path }}/bin/python'
+  tags:
+    - server.pip
+
+- name: packages | install pip packages
+  when:
+    - server_pip_packages | length > 0
+  ansible.builtin.command:
+    cmd: >-
+      {{ server_uv_bin }} pip install --upgrade
+      --python {{ server_pip_pyenv_path }}/bin/python
+      {{ server_pip_packages | join(' ') }}
+  environment:
+    NO_COLOR: '1'
+  register: server_uv_pip
+  changed_when: "'Installed' in server_uv_pip.stderr"
   tags:
     - server.pip
 

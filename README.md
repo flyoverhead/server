@@ -22,6 +22,9 @@ the VPS at a provider — is out of scope.
 
 - `jmespath` on the controller (the `systemd` role uses the `json_query` filter)
 
+- Outbound access to `github.com`: the `server` role's `uv` install pulls a
+  pinned release tarball from `github.com/astral-sh/uv` on every fresh host
+
 - Task `>=3.20`, Vagrant and a VMware Fusion provider, for the test harness only
 
 ### Installation
@@ -30,7 +33,7 @@ Installing the collection dependencies:
 
 ```bash
 ansible-galaxy collection install -r requirements.yml
-pip install -r requirements.txt
+uv pip install --python "$HOME/.venv/bin/python" -r requirements.txt
 ```
 
 Installing the collection itself:

@@ -2,7 +2,7 @@
 
 namespace: flyoverhead
 name: server
-version: 2.0.3
+version: 2.1.0
 readme: README.md
 authors:
   - flyoverhead
@@ -34,6 +34,7 @@ build_ignore:
   - .ansible-lint
   - .claude
   - .pre-commit-config.yaml
+  - .superpowers
   - .tflint.hcl
   - .vagrant
   - .venv

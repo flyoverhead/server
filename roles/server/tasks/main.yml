@@ -12,6 +12,7 @@
         - server.root
         - server.ssh
         - server.timezone
+        - server.uv
         - server.upgrade
         - server.user
   tags:
@@ -22,6 +23,7 @@
     - server.root
     - server.ssh
     - server.timezone
+    - server.uv
     - server.upgrade
     - server.user
 
@@ -54,6 +56,19 @@
     - server.root
     - server.ssh
     - server.timezone
+
+- name: uv
+  ansible.builtin.include_tasks:
+    file: uv.yml
+    apply:
+      tags:
+        - server.packages
+        - server.pip
+        - server.uv
+  tags:
+    - server.packages
+    - server.pip
+    - server.uv
 
 - name: packages
   ansible.builtin.include_tasks:
