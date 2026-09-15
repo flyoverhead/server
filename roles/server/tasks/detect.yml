@@ -14,25 +14,41 @@
         server_ssh_port: '{{ ansible_port }}'
         server_ssh_host: '{{ ansible_host }}'
 
+    - name: detect | custom ssh port
+      ansible.builtin.wait_for:
+        port: '{{ server_ssh_port | int }}'
+        state: started
+        host: '{{ server_ssh_host }}'
+        search_regex: SSH-
+        connect_timeout: 5
+        timeout: 10
+      delegate_to: localhost
+      become: false
+      register: server_detect_custom_port
+      check_mode: false
+      failed_when: false
+
     - name: detect | default ssh port
+      when:
+        - '"Timeout when waiting" in (server_detect_custom_port.msg | default(""))'
       ansible.builtin.wait_for:
         port: 22
         state: started
         host: '{{ server_ssh_host }}'
+        search_regex: SSH-
         connect_timeout: 5
         timeout: 10
       delegate_to: localhost
       become: false
       register: server_default_ssh_port
       check_mode: false
-      failed_when:
-        - '"Timeout when waiting" not in (server_default_ssh_port.msg | default(""))'
-        - server_default_ssh_port.failed | default(false)
+      failed_when: false
 
     - name: detect | default ssh port fact  # noqa: var-naming[no-role-prefix]
       ansible.builtin.set_fact:
         ansible_port: 22
       when:
+        - '"Timeout when waiting" in (server_detect_custom_port.msg | default(""))'
         - '"Timeout when waiting" not in (server_default_ssh_port.msg | default(""))'
 
 - name: detect | connection to host
