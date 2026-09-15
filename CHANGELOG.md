@@ -34,6 +34,23 @@ All notable changes to `flyoverhead.server`.
 - The venv no longer contains `pip`. `uv venv` does not seed one; add
   `--seed` to the `create virtualenv` task if something outside this
   collection calls `<venv>/bin/pip`.
+## 2.0.3
+
+### Fixed
+
+- **Port detection no longer downgrades a working host to port 22.** 2.0.2
+  probed port 22 from the controller and read "the connect did not time out"
+  as "this host still uses the default port". A host whose port 22 accepts a
+  TCP connection and immediately closes it — a tarpit, or a provider-level
+  drop — therefore had `ansible_port` set to 22, and every later task failed
+  `UNREACHABLE`. With `ignore_unreachable: true` in the calling playbook the
+  whole run then reported `rc=0`, `changed=0` and looked like a clean no-op.
+  The custom port is now probed first and kept when it answers; 22 is probed
+  only as a fallback.
+- **Both port probes now require an SSH banner** (`search_regex: SSH-`)
+  rather than accepting any TCP connect, in `detect.yml` and in `ssh.yml`'s
+  migration guard. A port that accepts and closes is no longer mistaken for
+  a listening sshd.
 
 ## 2.0.2
 
