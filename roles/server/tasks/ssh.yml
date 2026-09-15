@@ -5,6 +5,7 @@
     port: '{{ server_ssh_port | int }}'
     state: started
     host: '{{ server_ssh_host }}'
+    search_regex: SSH-
     timeout: 10
   delegate_to: localhost
   become: false
