@@ -6,6 +6,8 @@
     state: started
     host: '{{ server_ssh_host }}'
     timeout: 10
+  delegate_to: localhost
+  become: false
   register: server_custom_ssh_port
   check_mode: false
   failed_when:
@@ -14,7 +16,7 @@
 
 - name: ssh | configure custom port
   when:
-    - '"Timeout when waiting" in server_custom_ssh_port.msg'
+    - '"Timeout when waiting" in (server_custom_ssh_port.msg | default(""))'
   block:
 
     - name: ssh | check socket unit

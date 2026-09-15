@@ -2,6 +2,36 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 2.0.2
+
+### Fixed
+
+- **Bootstrapping a fresh host works again.** 2.0.0 moved the apt source merge
+  into `tasks/detect.yml`, but `server_default_apt_sources` interpolates
+  `ansible_distribution_release`, and no fact can exist before credentials are
+  established — which happens in `tasks/user.yml`, included *after* `detect`.
+  Every fresh host in every group therefore died on
+  `'ansible_distribution_release' is undefined`. The merge and its three
+  assertions now run in `user.yml`, after facts are guaranteed and still ahead
+  of the first use of `server_apt_sources`.
+
+- **The `wait_for` port probes now run from the controller.** Those in
+  `detect.yml` and `ssh.yml` had no `delegate_to`, so Ansible connected *to the
+  target* to test whether the target was reachable. `detect.yml` consequently
+  set `ansible_port: 22` whenever a host was unreachable on its custom port,
+  whether or not 22 was open. Both are delegated to `localhost` with
+  `become: false`.
+
+- **The `msg` guards beneath those probes tolerate success.** `wait_for` sets no
+  `msg` when the port is already open, so the bare `server_*_ssh_port.msg`
+  references raised once delegation made that path reachable. Both now use
+  `| default("")`.
+
+- **`detect.yml` no longer depends on the playbook setting
+  `ignore_unreachable`.** `detect | gather remote facts` and
+  `detect | connection to host` are expected to fail before bootstrap and carry
+  the directive themselves.
+
 ## 2.0.1
 
 ### Fixed

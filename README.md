@@ -1,6 +1,6 @@
 # `flyoverhead.server`
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-2.0.2-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-Debian%2012%20%7C%2013-A81D33?logo=debian&logoColor=white)](#-supported-os)

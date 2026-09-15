@@ -25,7 +25,7 @@ server_apt_components:
 
 # apt sources. Every variable matching `^server_.+_apt_sources$` is merged
 # into one list by the `community.general.merge_variables` lookup in
-# tasks/detect.yml, so a caller adds repositories under its own name
+# tasks/user.yml, so a caller adds repositories under its own name
 # (`server_armbian_apt_sources`, `server_vendor_apt_sources`, ...) instead of
 # overriding this one and losing the base. Each entry becomes one deb822
 # stanza in /etc/apt/sources.list.d/<name>.sources; every field but `name`
