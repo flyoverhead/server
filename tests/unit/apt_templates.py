@@ -24,7 +24,12 @@ ENV = Environment(
     keep_trailing_newline=True,
     undefined=StrictUndefined,
 )
-ENV.filters.update(FilterModule().filters())
+_ANSIBLE_FILTERS = {
+    name: f
+    for name, f in FilterModule().filters().items()
+    if name not in ("default", "d")
+}
+ENV.filters.update(_ANSIBLE_FILTERS)
 
 HEADER = "#\n# Ansible managed\n#\n"
 
