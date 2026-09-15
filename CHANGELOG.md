@@ -2,6 +2,33 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 2.1.0
+
+### Changed
+
+- **Python packages are installed with uv instead of pip.** `tasks/packages.yml`
+  now creates `server_pip_pyenv_path` with `uv venv` and populates it with
+  `uv pip install`; `ansible.builtin.pip` is gone. Variable names are unchanged,
+  so no consumer needs editing.
+- `server_packages` drops `python3-pip`. `python3-venv` stays, unused but
+  harmless, so that already-provisioned hosts see no removal.
+- `server_pip_packages` now defaults to `[]` rather than `[pip]`, and the
+  install task is skipped when it is empty. The virtualenv is still created
+  unconditionally, because `ohmyzsh`'s `zshrc.j2` puts its `bin` on `PATH`.
+
+### Added
+
+- `tasks/uv.yml` installs a pinned uv release tarball into `/usr/local/bin`,
+  selected for `ansible_architecture`, under the new `server.uv` tag. Bumping
+  `server_uv_version` reinstalls, because the guard tests `uv --version`
+  rather than the file's existence.
+
+### Removed
+
+- The venv no longer contains `pip`. `uv venv` does not seed one; add
+  `--seed` to the `create virtualenv` task if something outside this
+  collection calls `<venv>/bin/pip`.
+
 ## 2.0.2
 
 ### Fixed

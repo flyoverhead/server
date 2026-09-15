@@ -15,8 +15,10 @@ full upgrade.
 | `server_*_apt_sources` | Repositories, merged across every variable matching `^server_.+_apt_sources$` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_apt_disable_sources` | Filenames under `sources.list.d` to neutralise | `[armbian.list]` |
 | `server_packages` | Packages installed on every host | Definition example in [defaults/main.yml](defaults/main.yml) |
-| `server_pip_pyenv_path` | Virtualenv the pip packages go into | `/home/user/.venv` |
-| `server_pip_packages` | Packages installed into that virtualenv | `[pip]` |
+| `server_pip_pyenv_path` | Virtualenv the packages go into, created with `uv venv` | `/home/user/.venv` |
+| `server_pip_packages` | Packages installed into that virtualenv with `uv pip install` | `[netaddr]` |
+| `server_uv_version` | uv release unpacked into `/usr/local/bin` | `0.12.14` |
+| `server_uv_arch` | `ansible_architecture` → release triple | `{x86_64: x86_64, aarch64: aarch64}` |
 | `server_timezone` | System timezone | `Europe/Moscow` |
 | `server_upgrade` | Run `apt upgrade`, autoremove and a `needrestart` check | `false` |
 
@@ -52,7 +54,7 @@ Once `server_user` exists they are unused.
 ## Tags
 
 `server.user`, `server.ssh`, `server.config`, `server.host`, `server.root`,
-`server.timezone`, `server.packages`, `server.pip`, `server.upgrade`.
+`server.timezone`, `server.packages`, `server.uv`, `server.pip`, `server.upgrade`.
 
 The detection block carries all of them, so any single tag still runs the
 fact-gathering it depends on.
