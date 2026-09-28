@@ -1,0 +1,41 @@
+---
+
+- name: server
+  hosts: vps
+  ignore_unreachable: true
+
+  roles:
+
+    - role: flyoverhead.server.server
+      tags:
+        - server
+
+    - role: flyoverhead.server.ohmyzsh
+      tags:
+        - ohmyzsh
+
+    - role: flyoverhead.server.systemd
+      tags:
+        - systemd
+
+    - role: flyoverhead.server.fail2ban
+      tags:
+        - fail2ban
+
+- name: pi
+  hosts: pi
+  ignore_unreachable: true
+
+  roles:
+
+    - role: flyoverhead.server.server
+      tags:
+        - server
+
+    - role: flyoverhead.server.ohmyzsh
+      tags:
+        - ohmyzsh
+
+    - role: flyoverhead.server.systemd
+      tags:
+        - systemd

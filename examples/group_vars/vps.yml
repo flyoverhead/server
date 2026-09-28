@@ -1,0 +1,28 @@
+---
+
+server_user:
+  name: deploy
+  group: deploy
+  home: /home/deploy
+  password: '{{ vault_vps_user_password }}'
+  authorized_ssh_keys:
+    - deploy
+
+default_user: root
+default_password: '{{ vault_vps_default_password }}'
+
+systemd_networkd:
+  - name: lo
+    kind: loopback
+    addresses:
+      - 127.0.0.1/8
+  - name: '{{ ethernet_interface_name }}'
+    kind: ether
+    macaddress: '{{ ansible_default_ipv4.macaddress }}'
+    address: '{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.prefix }}'
+    gateway: '{{ ansible_default_ipv4.gateway }}'
+    nameservers:
+      - '{{ ansible_default_ipv4.gateway }}'
+    routes:
+      - destination: '{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.prefix }}'
+        gateway: '{{ ansible_default_ipv4.gateway }}'

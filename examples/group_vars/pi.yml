@@ -1,0 +1,34 @@
+---
+
+default_user: root
+default_password: 1234
+
+server_armbian_apt_sources:
+  - name: armbian
+    uris: http://mirror.yandex.ru/mirrors/armbian/apt
+    suites: '{{ ansible_distribution_release }}'
+    components:
+      - main
+      - '{{ ansible_distribution_release }}-utils'
+      - '{{ ansible_distribution_release }}-desktop'
+    signed_by: /usr/share/keyrings/armbian-archive-keyring.gpg
+
+systemd_networkd:
+  - name: lo
+    kind: loopback
+    addresses:
+      - 127.0.0.1/8
+
+systemd_resolved:
+  dns:
+    - '{{ ansible_default_ipv4.gateway }}'
+  domains: []
+  cache: true
+  stub_listener: true
+
+systemd_home_firewalld:
+  - name: home
+    source: 192.168.1.0/24
+    zone: trusted
+    state: enabled
+    permanent: true
