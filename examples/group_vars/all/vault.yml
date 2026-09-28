@@ -1,0 +1,8 @@
+---
+
+vault_server_user_password: CHANGE_ME
+vault_server_root_password: CHANGE_ME
+vault_vps_user_password: CHANGE_ME
+vault_vps_default_password: CHANGE_ME
+vault_telegram_bot_token: CHANGE_ME
+vault_telegram_chat_id: CHANGE_ME

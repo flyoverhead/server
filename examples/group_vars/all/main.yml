@@ -1,0 +1,33 @@
+---
+
+ansible_port: 2222
+server_timezone: Europe/Moscow
+
+server_apt_mirror: http://mirror.yandex.ru/debian
+
+server_user:
+  name: admin
+  group: admin
+  home: /home/admin
+  password: '{{ vault_server_user_password }}'
+  authorized_ssh_keys:
+    - id_ed25519
+
+ansible_user: '{{ server_user.name }}'
+ansible_password: '{{ server_user.password }}'
+ansible_ssh_key: '{{ server_user.authorized_ssh_keys | first }}'
+
+server_root_password: '{{ vault_server_root_password }}'
+ethernet_interface_name: eth0
+
+telegram_bot_token: '{{ vault_telegram_bot_token }}'
+telegram_chat_id: '{{ vault_telegram_chat_id }}'
+
+systemd_default_firewalld:
+  - name: ssh
+    port: '{{ ansible_port }}/tcp'
+    zone: public
+    state: enabled
+    permanent: true
+
+# server_upgrade: true
