@@ -32,6 +32,9 @@ DNS={{ item.nameservers | join(' ') }}
 {% if item.domains | default([]) | length > 0 %}
 Domains={{ item.domains | join(' ') }}
 {% endif %}
+{% if item.dns_default_route is defined %}
+DNSDefaultRoute={{ item.dns_default_route | bool | ternary('yes', 'no') }}
+{% endif %}
 {% if item.vlans | default([]) | length > 0 %}
 {% for vlan in item.vlans %}
 VLAN={{ vlan }}

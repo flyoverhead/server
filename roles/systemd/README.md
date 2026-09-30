@@ -10,7 +10,7 @@ Configures the four systemd subsystems this collection relies on: `firewalld`
 | :--- | :--- | :--- |
 | `systemd_default_firewalld` | Firewalld rules | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `systemd_networkd` | Networkd interfaces. Empty list disables all networkd management | Definition examples in [defaults/main.yml](defaults/main.yml) |
-| `systemd_resolved` | `dns`, `domains`, `cache`, `stub_listener` | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `systemd_resolved` | `dns`, `domains`, `cache`, `stub_listener`; optional `dns_over_tls` (bool or `opportunistic`), `fallback_dns` (`[]` disables the built-in list) | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `systemd_timesyncd` | `servers`, `fallback_servers` | Definition example in [defaults/main.yml](defaults/main.yml) |
 
 ### Merging firewalld rules
@@ -87,6 +87,10 @@ parent through `device` are attached to that parent as `Tunnel=` entries.
   `systemd_resolved.stub_listener`. Leaving the stub listener on means
   `127.0.0.53:53` is occupied — relevant if you later want a resolver of your
   own on port 53.
+- With `dns_over_tls: true`, write servers as `IP#hostname` so resolved has
+  a name to check the certificate against. The setting also applies to per-link servers, so a link carrying provider DNS
+  that has no DoT will fail its queries: give that `systemd_networkd` item
+  `dns_default_route: false`, which renders `DNSDefaultRoute=no`.
 - On Debian 11 and older the role installs `libnss-resolve` instead of
   `systemd-resolved`, which is a separate package only from Debian 12 on.
 
