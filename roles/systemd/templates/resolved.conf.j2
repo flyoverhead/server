@@ -7,6 +7,12 @@ DNS={{ systemd_resolved.dns | join(' ') }}
 {% if systemd_resolved.domains | length > 0 %}
 Domains={{ systemd_resolved.domains | join(' ') }}
 {% endif %}
+{% if systemd_resolved.fallback_dns is defined %}
+FallbackDNS={{ systemd_resolved.fallback_dns | join(' ') }}
+{% endif %}
+{% if systemd_resolved.dns_over_tls is defined %}
+DNSOverTLS={{ systemd_resolved.dns_over_tls | ternary('yes', 'no') if systemd_resolved.dns_over_tls is boolean else systemd_resolved.dns_over_tls }}
+{% endif %}
 MulticastDNS=false
 LLMNR=false
 Cache={{ systemd_resolved.cache | default('true') | lower }}

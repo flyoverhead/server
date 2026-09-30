@@ -2,6 +2,29 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 2.2.0
+
+### Added
+
+- `systemd_resolved.dns_over_tls` renders `DNSOverTLS=` (`true`/`false` or a
+  literal such as `opportunistic`), and `systemd_resolved.fallback_dns`
+  renders `FallbackDNS=`; an empty list disables systemd's compiled-in
+  plaintext fallback servers.
+- `systemd_networkd` items accept `dns_default_route`, rendering
+  `DNSDefaultRoute=`, so a link's DHCP/RA or static DNS servers can be kept
+  off the default lookup path.
+
+All three are opt-in: a host that sets none of them renders byte-identical
+files.
+
+### Fixed
+
+- **`--check` no longer plans to delete every changed networkd file.** The
+  cleanup kept only paths read from the registered template results, and check
+  mode omits `dest` for a changed file, so any networkd change showed its own
+  `.network` file being removed. The kept list is now built from
+  `systemd_all_networkd` directly. Real runs were not affected.
+
 ## 2.1.0
 
 ### Changed

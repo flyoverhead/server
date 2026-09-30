@@ -64,7 +64,6 @@
             group: root
             mode: '0644'
             lstrip_blocks: true
-          register: systemd_networkd_netlinks
           loop: '{{ systemd_all_networkd | sort(attribute="name") }}'
           loop_control:
             label: '{{ item.name }}'
@@ -81,7 +80,6 @@
             group: root
             mode: '0644'
             lstrip_blocks: true
-          register: systemd_networkd_netdevs
           loop: '{{ systemd_all_networkd | sort(attribute="name") }}'
           loop_control:
             label: '{{ item.name }}'
@@ -98,7 +96,6 @@
             group: root
             mode: '0644'
             lstrip_blocks: true
-          register: systemd_networkd_networks
           loop: '{{ systemd_all_networkd | sort(attribute="name") }}'
           loop_control:
             label: '{{ item.name }}'
@@ -115,7 +112,6 @@
             group: root
             mode: '0644'
             lstrip_blocks: true
-          register: systemd_networkd_slaves
           loop: '{{ systemd_all_networkd | sort(attribute="name") }}'
           loop_control:
             label: '{{ item.name }}'
@@ -141,16 +137,18 @@
 
         - name: config | set used networkd configurations
           ansible.builtin.set_fact:
-            systemd_networkd_managed_devices: '{{ systemd_networkd_managed_devices | default([]) + item }}'
-          loop:
-            - '{{ systemd_networkd_netlinks | json_query("results[*].dest") }}'
-            - '{{ systemd_networkd_netdevs | json_query("results[*].dest") }}'
-            - '{{ systemd_networkd_networks | json_query("results[*].dest") }}'
-            - '{{ systemd_networkd_slaves | json_query("results[*].dest") }}'
+            systemd_networkd_managed_devices: >-
+              {{ systemd_networkd_managed_devices | default([]) +
+              ([systemd_networkd_path ~ '.link'] if item.kind == 'link' else []) +
+              ([systemd_networkd_path ~ '.netdev'] if item.kind not in ['ether', 'link', 'loopback'] else []) +
+              ([systemd_networkd_path ~ '.network'] if item.kind != 'link' else []) +
+              ([systemd_networkd_path ~ '-slaves.network']
+              if item.kind in ['bridge', 'bond'] and item.slaves | default([]) | length > 0 else []) }}
+          vars:
+            systemd_networkd_path: /etc/systemd/network/{{ item.priority }}-{{ item.name }}
+          loop: '{{ systemd_all_networkd | sort(attribute="name") }}'
           loop_control:
-            label: '{{ item }}'
-          when:
-            - item | length > 0
+            label: '{{ item.name }}'
 
         - name: config | clean unused networkd configurations
           ansible.builtin.file:
