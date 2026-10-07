@@ -18,11 +18,11 @@ systemd_networkd:
       - 127.0.0.1/8
   - name: '{{ ethernet_interface_name }}'
     kind: ether
-    macaddress: '{{ ansible_default_ipv4.macaddress }}'
-    address: '{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.prefix }}'
-    gateway: '{{ ansible_default_ipv4.gateway }}'
+    macaddress: '{{ ansible_facts.default_ipv4.macaddress }}'
+    address: '{{ ansible_facts.default_ipv4.address }}/{{ ansible_facts.default_ipv4.prefix }}'
+    gateway: '{{ ansible_facts.default_ipv4.gateway }}'
     nameservers:
-      - '{{ ansible_default_ipv4.gateway }}'
+      - '{{ ansible_facts.default_ipv4.gateway }}'
     routes:
-      - destination: '{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.prefix }}'
-        gateway: '{{ ansible_default_ipv4.gateway }}'
+      - destination: '{{ ansible_facts.default_ipv4.network }}/{{ ansible_facts.default_ipv4.prefix }}'
+        gateway: '{{ ansible_facts.default_ipv4.gateway }}'
