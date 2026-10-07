@@ -8,8 +8,8 @@ MesloLGS NF fonts, then makes zsh the user's login shell.
 | Variable | Description | Example |
 | :--- | :--- | :--- |
 | `ohmyzsh_user_name` | User to install for | `{{ ansible_user }}` |
-| `ohmyzsh_user_group` | That user's primary group | `{{ ansible_user_gid }}` |
-| `ohmyzsh_user_home` | That user's home directory | `{{ ansible_user_dir }}` |
+| `ohmyzsh_user_group` | That user's primary group | `{{ ansible_facts.user_gid }}` |
+| `ohmyzsh_user_home` | That user's home directory | `{{ ansible_facts.user_dir }}` |
 | `ohmyzsh_dependencies` | Packages installed first | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `ohmyzsh_install_plugins` | Plugin repositories to clone: `name`, `url`, `branch` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `ohmyzsh_plugins` | Plugins written into the `plugins=(...)` line of `.zshrc` | `[pip, python, ssh-agent]` |

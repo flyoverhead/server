@@ -28,12 +28,14 @@ def test_address_carries_the_fact_prefix(prefix):
     expression = ADD["ansible.builtin.set_fact"]["systemd_networkd"]
     rendered = Environment(undefined=StrictUndefined).from_string(expression).render(
         systemd_networkd=[],
-        ansible_default_ipv4={
-            "interface": "eth0",
-            "type": "ether",
-            "address": "192.0.2.10",
-            "prefix": prefix,
-            "gateway": "192.0.2.1",
+        ansible_facts={
+            "default_ipv4": {
+                "interface": "eth0",
+                "type": "ether",
+                "address": "192.0.2.10",
+                "prefix": prefix,
+                "gateway": "192.0.2.1",
+            },
         },
         systemd_resolved={"dns": [], "domains": []},
     )

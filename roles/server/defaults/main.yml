@@ -5,8 +5,8 @@
 # appends it.
 server_user:
   name: '{{ ansible_user }}'
-  group: '{{ ansible_user_gid }}'
-  home: '{{ ansible_user_dir }}'
+  group: '{{ ansible_facts.user_gid }}'
+  home: '{{ ansible_facts.user_dir }}'
   password: password
   authorized_ssh_keys:
     - id_ed25519
@@ -47,14 +47,14 @@ server_default_apt_sources:
   - name: debian
     uris: '{{ server_apt_mirror }}'
     suites:
-      - '{{ ansible_distribution_release }}'
-      - '{{ ansible_distribution_release }}-updates'
+      - '{{ ansible_facts.distribution_release }}'
+      - '{{ ansible_facts.distribution_release }}-updates'
     components: '{{ server_apt_components }}'
     signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
   - name: debian-security
     uris: '{{ server_apt_mirror }}-security'
     suites:
-      - '{{ ansible_distribution_release }}-security'
+      - '{{ ansible_facts.distribution_release }}-security'
     components: '{{ server_apt_components }}'
     signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
 
@@ -79,7 +79,7 @@ server_packages:
   - python3-requests
 
 # pip virtual environment path
-server_pip_pyenv_path: '{{ ansible_user_dir }}/.venv'
+server_pip_pyenv_path: '{{ ansible_facts.user_dir }}/.venv'
 
 # pip packages
 server_pip_packages: []
@@ -95,7 +95,7 @@ server_uv_arch:
 
 server_uv_url: >-
   https://github.com/astral-sh/uv/releases/download/{{ server_uv_version }}/uv-{{
-  server_uv_arch[ansible_architecture] }}-unknown-linux-gnu.tar.gz
+  server_uv_arch[ansible_facts.architecture] }}-unknown-linux-gnu.tar.gz
 
 server_timezone: Europe/Moscow
 

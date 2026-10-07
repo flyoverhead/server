@@ -9,6 +9,11 @@
         - systemd.networkd
         - systemd.resolved
         - systemd.timesyncd
+  tags:
+    - systemd.firewalld
+    - systemd.networkd
+    - systemd.resolved
+    - systemd.timesyncd
 
 - name: install
   ansible.builtin.include_tasks:

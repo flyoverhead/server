@@ -1,8 +1,8 @@
 ---
 
 ohmyzsh_user_name: '{{ ansible_user }}'
-ohmyzsh_user_group: '{{ ansible_user_gid }}'
-ohmyzsh_user_home: '{{ ansible_user_dir }}'
+ohmyzsh_user_group: '{{ ansible_facts.user_gid }}'
+ohmyzsh_user_home: '{{ ansible_facts.user_dir }}'
 
 ohmyzsh_dependencies:
   - curl
