@@ -67,12 +67,23 @@ fact-gathering it depends on.
   `ansible_port != 22`, and [tasks/main.yml](tasks/main.yml) gates the sshd move
   on `server_ssh_port != ansible_port`. Set `ansible_port` to the port you want
   sshd to end up on; the role finds the host on 22 and moves it there.
-- **`/etc/ssh/sshd_config` is replaced wholesale** by
-  [templates/sshd_config.j2](templates/sshd_config.j2), which sets only `Port`,
-  `PermitRootLogin no` and `PubkeyAuthentication yes`. Every other directive in
-  the distribution file is dropped. Note it does not disable password
-  authentication.
-- **`/etc/apt/sources.list` is emptied to a comment.** Every repository is a
+- **`/etc/ssh/sshd_config` is reset to the Debian stock file**,
+  `/usr/share/openssh/sshd_config` from the `openssh-server` package, with a
+  timestamped backup of whatever was there. The role's settings live in
+  `/etc/ssh/sshd_config.d/00-server.conf`, rendered from
+  [templates/sshd_server.conf.j2](templates/sshd_server.conf.j2): `Port`
+  (`server_ssh_port`), `PermitRootLogin no`, `PubkeyAuthentication yes`,
+  `PasswordAuthentication no` and `KbdInteractiveAuthentication no`. sshd keeps
+  the first value it reads and the stock file includes `sshd_config.d/*.conf`
+  first, so `00-` overrides cloud-init's `50-cloud-init.conf`. Put further
+  settings in your own drop-in, not in the main file. Both files are checked
+  with `sshd -t` before they are written.
+- **Password login is disabled.** The first run still bootstraps over
+  `default_password`, because sshd is restarted only after
+  `user | authorized keys` has installed `server_user.authorized_ssh_keys`;
+  from then on the controller must authenticate with one of those keys.
+- **`/etc/apt/sources.list` is emptied to a comment**, with a timestamped
+  backup of the previous content. Every repository is a
   deb822 file under `sources.list.d`, one per merged entry, named
   `<name>.sources`. A host that had its repositories in `sources.list` before
   this version loses nothing — the shipped default rewrites the same three
@@ -108,7 +119,7 @@ fact-gathering it depends on.
 
 ## Check mode
 
-`--check --diff` reports drift in `sshd_config`, `/etc/hosts`, the hostname, the
+`--check --diff` reports drift in `sshd_config` and its `00-server.conf` drop-in, `/etc/hosts`, the hostname, the
 timezone, the apt sources drop-ins and the package set against a host that has
 already been bootstrapped.
 

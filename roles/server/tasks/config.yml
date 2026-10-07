@@ -1,19 +1,5 @@
 ---
 
-- name: config | sshd_config
-  become: true
-  ansible.builtin.template:
-    src: sshd_config.j2
-    dest: /etc/ssh/sshd_config
-    owner: root
-    group: root
-    mode: '0644'
-    lstrip_blocks: true
-  notify:
-    - ssh | restart service
-  tags:
-    - server.ssh
-
 - name: config | hostname
   become: true
   ansible.builtin.hostname:

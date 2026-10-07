@@ -1,6 +1,6 @@
 # `flyoverhead.server`
 
-[![Version](https://img.shields.io/badge/version-2.0.2-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-Debian%2012%20%7C%2013-A81D33?logo=debian&logoColor=white)](#-supported-os)
@@ -103,19 +103,28 @@ older is tested.
 Three things here rewrite state rather than adding to it. All are documented per
 role, collected once here:
 
-- **`server` replaces `/etc/ssh/sshd_config` wholesale** with three directives
-  (`Port`, `PermitRootLogin no`, `PubkeyAuthentication yes`). Every other
-  directive in the distribution file is dropped, and password authentication is
-  *not* disabled.
-- **`server` empties `/etc/apt/sources.list`** to a comment and writes every
-  repository as a deb822 drop-in under `sources.list.d`, one file per merged
+- **`server` resets `/etc/ssh/sshd_config` to the Debian stock file** from
+  `/usr/share/openssh/sshd_config` and puts its own settings in
+  `sshd_config.d/00-server.conf`: `Port`, `PermitRootLogin no`,
+  `PubkeyAuthentication yes`, `PasswordAuthentication no`,
+  `KbdInteractiveAuthentication no`. Local edits to the main file are lost (a
+  timestamped backup is kept); customise sshd with a later drop-in instead.
+  sshd keeps the first value it reads, so `00-` wins over cloud-init's
+  `50-cloud-init.conf` and any other drop-in. **Password login is off** — the
+  controller key in `server_user.authorized_ssh_keys` must work before the run.
+- **`server` empties `/etc/apt/sources.list`** to a comment (the previous
+  content is kept as a timestamped backup) and writes every repository as a
+  deb822 drop-in under `sources.list.d`, one file per merged
   `server_*_apt_sources` entry. An entry overwrites an image-shipped file of
   the same name; anything not named by an entry or by
   `server_apt_disable_sources` is left alone.
 - **`systemd` with a non-empty `systemd_networkd` takes networking over.** It
-  deletes every file under `/etc/systemd/network` it did not just write,
+  deletes every top-level `.link`/`.netdev`/`.network` file under
+  `/etc/systemd/network` it did not just write, appends the default-route
+  interface with its current address and prefix if the list omits it,
   overwrites `/etc/network/interfaces`, masks the legacy `networking` service
-  and queues a reboot. The default is `[]`, which skips all of it.
+  and, on the first takeover, reboots. The default is `[]`, which skips all of
+  it.
 
 ## 🧪 Testing
 

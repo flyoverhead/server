@@ -15,8 +15,9 @@ systemd_default_firewalld:
 # Networkd interfaces. An empty list disables all networkd management: no
 # .link/.netdev/.network file is written and /etc/network/interfaces is left
 # alone. As soon as the list is non-empty the role takes over networking
-# completely -- it removes every file under /etc/systemd/network it did not
-# just write, and masks the legacy `networking` service.
+# completely -- it removes every .link/.netdev/.network file under
+# /etc/systemd/network it did not just write, and masks the legacy
+# `networking` service.
 #
 # `kind` selects the template and the file-name priority prefix:
 #

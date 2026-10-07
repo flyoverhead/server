@@ -1,0 +1,28 @@
+---
+
+- name: sshd | server drop-in
+  become: true
+  ansible.builtin.template:
+    src: sshd_server.conf.j2
+    dest: /etc/ssh/sshd_config.d/00-server.conf
+    owner: root
+    group: root
+    mode: '0644'
+    lstrip_blocks: true
+    validate: /usr/sbin/sshd -t -f %s
+  notify:
+    - ssh | restart service
+
+- name: sshd | stock sshd_config
+  become: true
+  ansible.builtin.copy:
+    src: /usr/share/openssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+    validate: /usr/sbin/sshd -t -f %s
+  notify:
+    - ssh | restart service
