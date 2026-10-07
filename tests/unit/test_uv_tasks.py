@@ -58,7 +58,7 @@ def test_uv_install_is_version_pinned_and_arch_mapped():
     assert re.fullmatch(r"\d+\.\d+\.\d+", str(DEFAULTS["server_uv_version"]))
     assert set(DEFAULTS["server_uv_arch"]) >= {"x86_64", "aarch64"}
     assert "{{ server_uv_version }}" in DEFAULTS["server_uv_url"]
-    assert "server_uv_arch[ansible_architecture]" in DEFAULTS["server_uv_url"]
+    assert "server_uv_arch[ansible_facts.architecture]" in DEFAULTS["server_uv_url"]
 
 
 def test_uv_install_reruns_when_the_pinned_version_changes():

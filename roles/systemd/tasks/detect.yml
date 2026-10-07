@@ -28,14 +28,14 @@
       ansible.builtin.set_fact:
         systemd_networkd: >
           {{ systemd_networkd | default([]) +
-          [{'name': ansible_default_ipv4.interface,
-          'kind': ansible_default_ipv4.type,
-          'address': ansible_default_ipv4.address ~ '/' ~ ansible_default_ipv4.prefix,
-          'gateway': ansible_default_ipv4.gateway,
+          [{'name': ansible_facts.default_ipv4.interface,
+          'kind': ansible_facts.default_ipv4.type,
+          'address': ansible_facts.default_ipv4.address ~ '/' ~ ansible_facts.default_ipv4.prefix,
+          'gateway': ansible_facts.default_ipv4.gateway,
           'nameservers': systemd_resolved.dns,
           'domains': systemd_resolved.domains}] }}
       when:
-        - systemd_networkd | selectattr("name", "search", ansible_default_ipv4.interface) | length == 0
+        - systemd_networkd | selectattr("name", "search", ansible_facts.default_ipv4.interface) | length == 0
 
     - name: detect | link tunnels with interfaces
       ansible.builtin.set_fact:

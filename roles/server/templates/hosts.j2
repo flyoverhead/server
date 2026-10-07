@@ -1,5 +1,5 @@
 {{ ansible_managed | comment }}
 
 127.0.0.1       localhost
-127.0.1.1       {{ ansible_hostname }}
-{{ ansible_default_ipv4.address }}      {{ ansible_hostname }}
+127.0.1.1       {{ ansible_facts.hostname }}
+{{ ansible_facts.default_ipv4.address }}      {{ ansible_facts.hostname }}

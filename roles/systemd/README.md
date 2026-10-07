@@ -51,7 +51,7 @@ orders interface bring-up:
 
 The interface holding the default route is appended automatically if
 `systemd_networkd` does not already name it, with its current address, prefix
-length and gateway from `ansible_default_ipv4`. `ipip` entries naming an `ether`
+length and gateway from `ansible_facts.default_ipv4`. `ipip` entries naming an `ether`
 parent through `device` are attached to that parent as `Tunnel=` entries.
 
 ## Facts set by this role

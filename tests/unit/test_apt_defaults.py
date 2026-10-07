@@ -35,10 +35,10 @@ def test_default_covers_release_updates_and_security():
 
     base, security = entries
     assert base["suites"] == [
-        "{{ ansible_distribution_release }}",
-        "{{ ansible_distribution_release }}-updates",
+        "{{ ansible_facts.distribution_release }}",
+        "{{ ansible_facts.distribution_release }}-updates",
     ]
-    assert security["suites"] == ["{{ ansible_distribution_release }}-security"]
+    assert security["suites"] == ["{{ ansible_facts.distribution_release }}-security"]
     assert security["uris"] == "{{ server_apt_mirror }}-security"
 
 

@@ -65,7 +65,9 @@
   become: true
   ansible.builtin.user:
     name: '{{ server_user.name }}'
-    password: '{{ "%s" | format(server_user.password) | password_hash("sha512") }}'
+    password: >-
+      {{ "%s" | format(server_user.password) | password_hash("sha512",
+      ((inventory_hostname ~ server_user.name) | hash("sha256"))[:16]) }}
     group: '{{ server_user.group }}'
     create_home: true
     state: present

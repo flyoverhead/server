@@ -2,6 +2,29 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 3.0.1
+
+### Fixed
+
+- **Tag-limited `systemd` runs failed.** The `detect` include carried its tags
+  only under `apply:`, so `-t systemd.networkd` (or `.resolved`, `.firewalld`,
+  `.timesyncd`) skipped it, `systemd_install` was never set, and the `install`
+  include failed with `'systemd_install' is undefined`. Only `-t systemd`
+  worked. The include now carries the tags itself.
+- **`server_user` was rewritten on every run.** `password_hash("sha512")`
+  without a salt draws a new random salt each time, so `user | create`
+  reported `changed` on every run and rewrote the shadow entry. The salt is now
+  derived from the host and user name, so the hash is stable. The first run
+  after upgrading rewrites each hash once (same password, new salt).
+- **No more `INJECT_FACTS_AS_VARS` deprecation warnings.** The `server`,
+  `systemd` and `ohmyzsh` roles read facts through their injected names
+  (`ansible_default_ipv4`, `ansible_user_dir`, `ansible_user_gid`,
+  `ansible_distribution_release`, `ansible_distribution_major_version`,
+  `ansible_hostname`, `ansible_architecture`, `ansible_system`), which
+  ansible-core 2.24 removes. They now use `ansible_facts`. In `hosts.j2` this
+  keeps today's output: gathered facts outrank inventory variables, so an
+  inventory `ansible_hostname` never reached the template and still does not.
+
 ## 3.0.0
 
 ### Changed
