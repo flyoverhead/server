@@ -1,6 +1,5 @@
 ---
 
 ansible_host: 192.0.2.20
-ansible_hostname: vdsina-nl
 
 server_apt_mirror: http://ftp.nl.debian.org/debian

@@ -6,11 +6,11 @@ default_password: 1234
 server_armbian_apt_sources:
   - name: armbian
     uris: http://mirror.yandex.ru/mirrors/armbian/apt
-    suites: '{{ ansible_distribution_release }}'
+    suites: '{{ ansible_facts.distribution_release }}'
     components:
       - main
-      - '{{ ansible_distribution_release }}-utils'
-      - '{{ ansible_distribution_release }}-desktop'
+      - '{{ ansible_facts.distribution_release }}-utils'
+      - '{{ ansible_facts.distribution_release }}-desktop'
     signed_by: /usr/share/keyrings/armbian-archive-keyring.gpg
 
 systemd_networkd:
@@ -21,7 +21,7 @@ systemd_networkd:
 
 systemd_resolved:
   dns:
-    - '{{ ansible_default_ipv4.gateway }}'
+    - '{{ ansible_facts.default_ipv4.gateway }}'
   domains: []
   cache: true
   stub_listener: true

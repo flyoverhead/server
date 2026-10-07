@@ -1,4 +1,3 @@
 ---
 
 ansible_host: 192.0.2.30
-ansible_hostname: vdsina-ru

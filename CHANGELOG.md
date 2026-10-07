@@ -2,6 +2,13 @@
 
 All notable changes to `flyoverhead.server`.
 
+## Unreleased
+
+### Documentation
+
+- The example inventory reads facts through `ansible_facts` and no longer sets
+  `ansible_hostname` in host_vars, which the gathered fact always outranked.
+
 ## 3.0.1
 
 ### Fixed
