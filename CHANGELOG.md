@@ -2,6 +2,37 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 3.0.0
+
+### Changed
+
+- **Breaking: password login over ssh is disabled.** The `server` role now sets
+  `PasswordAuthentication no` and `KbdInteractiveAuthentication no`. Bootstrap
+  over `default_password` still works on the first run, because sshd restarts
+  only after `server_user.authorized_ssh_keys` is installed; any later
+  connection must use one of those keys.
+- **Breaking: `/etc/ssh/sshd_config` is reset to the Debian stock file** from
+  `/usr/share/openssh/sshd_config`, and the role's settings move to
+  `/etc/ssh/sshd_config.d/00-server.conf`. `templates/sshd_config.j2` is gone.
+  Local edits to the main file are lost (a timestamped backup is kept); move
+  them into a drop-in. Both files are validated with `sshd -t` before they are
+  written. The drop-in is written before the port move, so `ssh.yml` no longer
+  edits `sshd_config` with `lineinfile`.
+
+### Fixed
+
+- **sftp and scp work again.** The three-line `sshd_config` had no `Subsystem
+  sftp` line, so every transfer failed with `subsystem request failed on
+  channel 0`, which is the `sftp/scp transfer mechanism failed` warning in
+  every ansible run. The same file also dropped `UsePAM yes` and the `Include`
+  of `sshd_config.d`, so cloud-init's drop-in was silently ignored, and it left
+  password and keyboard-interactive login enabled.
+- **The auto-added default networkd interface keeps its real prefix.**
+  `systemd` appended it as `<address>/24` whatever the host's netmask was; it
+  now uses `ansible_default_ipv4.prefix`. Hosts whose default interface is
+  already listed in `systemd_networkd` are unaffected.
+- `/etc/apt/sources.list` is backed up before it is emptied.
+
 ## 2.2.0
 
 ### Added

@@ -30,7 +30,7 @@
           {{ systemd_networkd | default([]) +
           [{'name': ansible_default_ipv4.interface,
           'kind': ansible_default_ipv4.type,
-          'address': ansible_default_ipv4.address + '/24',
+          'address': ansible_default_ipv4.address ~ '/' ~ ansible_default_ipv4.prefix,
           'gateway': ansible_default_ipv4.gateway,
           'nameservers': systemd_resolved.dns,
           'domains': systemd_resolved.domains}] }}

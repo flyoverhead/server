@@ -36,6 +36,15 @@
   tags:
     - server.user
 
+- name: sshd
+  ansible.builtin.include_tasks:
+    file: sshd.yml
+    apply:
+      tags:
+        - server.ssh
+  tags:
+    - server.ssh
+
 - name: ssh
   ansible.builtin.include_tasks:
     file: ssh.yml
@@ -54,7 +63,6 @@
     - server.config
     - server.host
     - server.root
-    - server.ssh
     - server.timezone
 
 - name: uv

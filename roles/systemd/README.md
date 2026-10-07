@@ -50,7 +50,8 @@ orders interface bring-up:
 | `ipip` | 40 | `.netdev`, `.network` |
 
 The interface holding the default route is appended automatically if
-`systemd_networkd` does not already name it. `ipip` entries naming an `ether`
+`systemd_networkd` does not already name it, with its current address, prefix
+length and gateway from `ansible_default_ipv4`. `ipip` entries naming an `ether`
 parent through `device` are attached to that parent as `Tunnel=` entries.
 
 ## Facts set by this role
@@ -72,10 +73,11 @@ parent through `device` are attached to that parent as `Tunnel=` entries.
 ## Behaviour worth knowing before the first run
 
 - **A non-empty `systemd_networkd` hands networking to networkd, destructively.**
-  The role deletes every `.link`/`.netdev`/`.network` file under
+  The role deletes every top-level `.link`/`.netdev`/`.network` file under
   `/etc/systemd/network` that it did not just write, overwrites
   `/etc/network/interfaces` with a placeholder, masks the legacy `networking`
-  service and **queues a reboot handler**. The default is `[]`, which skips all
+  service and **queues a reboot handler**. The reboot fires when
+  `/etc/network/interfaces` changes, which in practice is the first takeover. The default is `[]`, which skips all
   of this. Get the interface definition right before you set it on a remote
   host you cannot console into.
 - **Switching iptables to the nftables backend also queues a reboot**, via the

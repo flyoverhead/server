@@ -84,6 +84,7 @@
     owner: root
     group: root
     mode: '0644'
+    backup: true
 
 - name: user | check apt sources to disable
   become: true

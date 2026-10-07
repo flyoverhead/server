@@ -33,14 +33,6 @@
           server_ssh_socket_unit_file.stat.exists
           else false }}
 
-    - name: ssh | configure sshd_config
-      become: true
-      ansible.builtin.lineinfile:
-        dest: /etc/ssh/sshd_config
-        search_string: Port 22
-        line: Port {{ server_ssh_port }}
-        state: present
-
     - name: ssh | configure ssh.socket
       when:
         - server_ssh_socket_config
