@@ -24,6 +24,8 @@
     url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: /tmp/ohmyzsh-install.sh
     mode: '0755'
+  when:
+    - not ohmyzsh_installed or ohmyzsh_force_reinstall
 
 - name: install | oh-my-zsh
   become: True
@@ -38,34 +40,11 @@
   ansible.builtin.file:
     path: /tmp/ohmyzsh-install.sh
     state: absent
+  when:
+    - not ohmyzsh_installed or ohmyzsh_force_reinstall
 
 - name: install | set default zsh shell
   become: True
   ansible.builtin.user:
     name: '{{ ohmyzsh_user_name }}'
     shell: /bin/zsh
-
-- name: install | fonts
-  become: True
-  block:
-
-    - name: install | create fonts directory
-      ansible.builtin.file:
-        path: '{{ ohmyzsh_user_home }}/.fonts'
-        state: directory
-        owner: '{{ ohmyzsh_user_name }}'
-        group: '{{ ohmyzsh_user_group }}'
-        mode: '0755'
-
-    - name: install | download fonts
-      ansible.builtin.get_url:
-        url: https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item }}
-        dest: '{{ ohmyzsh_user_home }}/.fonts/{{ item | regex_replace("%20", "_") }}'
-        owner: '{{ ohmyzsh_user_name }}'
-        group: '{{ ohmyzsh_user_group }}'
-        mode: '0644'
-      loop:
-        - MesloLGS%20NF%20Regular.ttf
-        - MesloLGS%20NF%20Bold.ttf
-        - MesloLGS%20NF%20Italic.ttf
-        - MesloLGS%20NF%20Bold%20Italic.ttf

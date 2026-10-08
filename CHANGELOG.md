@@ -2,7 +2,38 @@
 
 All notable changes to `flyoverhead.server`.
 
-## Unreleased
+## 4.0.0
+
+### Changed
+
+- **BREAKING: `ohmyzsh` uses starship instead of powerlevel10k**, as
+  `flyoverhead.macos` 3.0.0 does. powerlevel10k's README says it has very
+  limited support, and the role copied a 1762-line `p10k configure` output
+  verbatim on every run. `starship` is now in `ohmyzsh_dependencies` (Debian
+  13 ships 1.22.1), `.zshrc` starts it after Oh My Zsh, and
+  `~/.config/starship.toml` is rendered from `ohmyzsh_starship_settings`.
+  The default is the same two-line powerline prompt as the macos collection's.
+  Lost: the transient prompt and the instant prompt.
+- `ohmyzsh_theme` and `files/p10k.zsh` are removed. An upgrade deletes
+  `~/.p10k.zsh` and the cloned theme under `~/.oh-my-zsh/custom/themes`.
+- **No more font downloads.** The four MesloLGS NF files went to `~/.fonts`
+  on the server, where an SSH session never uses them, and `fontconfig` and
+  `fonts-powerline` are gone from the default dependencies. Nothing already
+  installed is removed.
+- `.zshrc` is backed up, checked with `zsh -n`, and sources
+  `~/.zshrc.d/*.zsh` last for local additions.
+
+### Added
+
+- `ohmyzsh_starship_settings`, `ohmyzsh_starship_settings_extra` (merged
+  recursively over it) and `ohmyzsh_starship_config_path`.
+
+### Fixed
+
+- **Packages were only installed on a host without Oh My Zsh.** The whole
+  `install` stage was skipped once `~/.oh-my-zsh` existed, so a package added
+  to `ohmyzsh_dependencies` later never reached existing hosts. Only the
+  installer download and cleanup are limited to the first run now.
 
 ### Documentation
 

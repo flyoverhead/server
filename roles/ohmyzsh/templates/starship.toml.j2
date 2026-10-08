@@ -1,0 +1,27 @@
+{% macro toml_key(key) -%}
+{{ key if key is match('^[A-Za-z0-9_-]+$') else key | to_json(ensure_ascii=False) }}
+{%- endmacro %}
+{% macro toml_value(value) -%}
+{% if value is boolean -%}
+{{ value | string | lower }}
+{%- elif value is number -%}
+{{ value }}
+{%- elif value is string -%}
+{{ value | to_json(ensure_ascii=False) }}
+{%- else -%}
+[{% for item in value %}{{ toml_value(item) }}{{ ', ' if not loop.last }}{% endfor %}]
+{%- endif %}
+{%- endmacro %}
+{% macro toml_table(path, table) %}
+{% for key, value in table | dictsort if value is not mapping %}
+{{ toml_key(key) }} = {{ toml_value(value) }}
+{% endfor %}
+{% for key, value in table | dictsort if value is mapping %}
+
+[{{ (path + [key]) | map('regex_replace', '^(.*[^A-Za-z0-9_-].*)$', '"\\1"') | join('.') }}]
+{{ toml_table(path + [key], value) -}}
+{% endfor %}
+{% endmacro %}
+# {{ ansible_managed }}
+
+{{ toml_table([], ohmyzsh_starship_settings | combine(ohmyzsh_starship_settings_extra, recursive=true)) -}}
