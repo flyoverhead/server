@@ -1,6 +1,6 @@
 # `flyoverhead.server`
 
-[![Version](https://img.shields.io/badge/version-3.0.1-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-Debian%2012%20%7C%2013-A81D33?logo=debian&logoColor=white)](#-supported-os)
@@ -95,7 +95,7 @@ older is tested.
 | :--- | :--- |
 | [`server`](roles/server/README.md) | Login user, sudo, authorized keys, sshd port, apt sources, hostname, timezone, base packages |
 | [`systemd`](roles/systemd/README.md) | firewalld on nftables, systemd-networkd, systemd-resolved, systemd-timesyncd |
-| [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, powerlevel10k, plugins, MesloLGS NF fonts |
+| [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, starship prompt, plugins |
 | [`fail2ban`](roles/fail2ban/README.md) | fail2ban with an `[sshd]` jail and optional Telegram notifications |
 
 ## ⚠️ Gotchas

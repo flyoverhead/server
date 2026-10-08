@@ -7,8 +7,6 @@
 - name: install
   ansible.builtin.import_tasks:
     file: install.yml
-  when:
-    - not ohmyzsh_installed or ohmyzsh_force_reinstall
 
 - name: config
   ansible.builtin.import_tasks:

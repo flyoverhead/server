@@ -6,10 +6,9 @@ ohmyzsh_user_home: '{{ ansible_facts.user_dir }}'
 
 ohmyzsh_dependencies:
   - curl
-  - fontconfig
-  - fonts-powerline
   - fzf
   - git
+  - starship
   - zsh
 
 ohmyzsh_install_plugins:
@@ -26,7 +25,85 @@ ohmyzsh_install_plugins:
     url: https://github.com/zsh-users/zsh-syntax-highlighting.git
     branch: master
 
-ohmyzsh_theme: powerlevel10k/powerlevel10k
+# Rendered to `~/.config/starship.toml`. `ohmyzsh_starship_settings_extra` is
+# merged over it recursively, so one module can change without copying it all.
+ohmyzsh_starship_config_path: '{{ ohmyzsh_user_home }}/.config/starship.toml'
+ohmyzsh_starship_settings_extra: {}
+  # time:
+  #   disabled: true
+ohmyzsh_starship_settings:
+  add_newline: false
+  format: >-
+    [╭─](fg:242)$os$directory$git_branch$git_status$fill$status$cmd_duration$jobs$kubernetes$terraform$aws$python$time[─╮](fg:242)$line_break[╰─](fg:242)$character
+  aws:
+    format: "[\ue0ba](fg:1)[ $symbol$profile ]($style)"
+    style: bg:1 fg:7
+  character:
+    error_symbol: '[❯](bold fg:196)'
+    success_symbol: '[❯](bold fg:76)'
+    vimcmd_symbol: '[❮](bold fg:76)'
+  cmd_duration:
+    format: "[\ue0ba](fg:3)[ $duration \uf252 ]($style)"
+    min_time: 3000
+    style: bg:3 fg:0
+  directory:
+    format: "[ $path ]($style)[$read_only]($read_only_style)[\ue0bc](fg:4)"
+    read_only: " \uf023"
+    read_only_style: bg:4 fg:1
+    style: bg:4 fg:254
+    truncation_length: 4
+    truncation_symbol: …/
+  fill:
+    style: fg:242
+    symbol: ─
+  git_branch:
+    format: "[\ue0ba](fg:2)[ $symbol$branch ]($style)"
+    style: bg:2 fg:0
+    symbol: "\uf126 "
+  git_status:
+    format: "[($all_status$ahead_behind )]($style)[\ue0bc](fg:2)"
+    style: bg:2 fg:0
+  jobs:
+    format: "[\ue0ba](fg:0)[ $symbol$number ]($style)"
+    style: bg:0 fg:6
+    symbol: "\uf013 "
+  kubernetes:
+    detect_files:
+      - Chart.yaml
+      - helmfile.yaml
+      - kustomization.yaml
+    disabled: false
+    format: "[\ue0ba](fg:5)[ $symbol$context( /$namespace) ]($style)"
+    style: bg:5 fg:7
+    symbol: "☸ "
+  os:
+    disabled: false
+    format: '[ $symbol]($style)'
+    style: bg:7 fg:232
+    symbols:
+      Debian: "\uf306 "
+      Linux: "\uf17c "
+      Macos: "\uf179 "
+      Ubuntu: "\uf31b "
+  python:
+    detect_extensions: []
+    detect_files: []
+    detect_folders: []
+    format: "[\ue0ba](fg:4)[ $symbol$virtualenv ]($style)"
+    style: bg:4 fg:0
+  status:
+    disabled: false
+    format: "[\ue0ba](fg:1)[ $symbol$status ]($style)"
+    style: bg:1 fg:3
+    symbol: '✘ '
+  terraform:
+    format: "[\ue0ba](fg:0)[ $symbol$workspace ]($style)"
+    style: bg:0 fg:4
+  time:
+    disabled: false
+    format: "[\ue0ba](fg:7)[ $time ]($style)"
+    style: bg:7 fg:0
+    time_format: '%H:%M:%S'
 
 ohmyzsh_plugins:
   - pip

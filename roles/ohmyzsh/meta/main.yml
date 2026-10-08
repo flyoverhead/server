@@ -4,7 +4,7 @@ galaxy_info:
   role_name: ohmyzsh
   namespace: flyoverhead
   author: flyoverhead
-  description: Oh My Zsh and powerlevel10k shell configuration
+  description: Oh My Zsh and starship shell configuration
   license: GPL-3.0-only
   min_ansible_version: '2.16'
   platforms:
@@ -13,7 +13,7 @@ galaxy_info:
         - bookworm
         - trixie
   galaxy_tags:
-    - powerlevel10k
+    - starship
     - shell
     - zsh
 

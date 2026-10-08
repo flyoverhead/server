@@ -16,18 +16,14 @@
     - ohmyzsh_repo_clone.failed
     - not 'Local modifications exist in the destination' in ohmyzsh_repo_clone.msg
 
-- name: config | powerlevel10k theme
+- name: config | remove powerlevel10k
   become: True
-  become_user: '{{ ohmyzsh_user_name }}'
-  ansible.builtin.git:
-    repo: https://github.com/romkatv/powerlevel10k.git
-    dest: '{{ ohmyzsh_user_home }}/.oh-my-zsh/custom/themes/powerlevel10k'
-    depth: 1
-    version: master
-  register: ohmyzsh_repo_clone
-  failed_when:
-    - ohmyzsh_repo_clone.failed
-    - not 'Local modifications exist in the destination' in ohmyzsh_repo_clone.msg
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: absent
+  loop:
+    - '{{ ohmyzsh_user_home }}/.oh-my-zsh/custom/themes/powerlevel10k'
+    - '{{ ohmyzsh_user_home }}/.p10k.zsh'
 
 - name: config | .zshrc
   become: True
@@ -39,13 +35,34 @@
     mode: '0644'
     lstrip_blocks: true
     force: True
+    backup: True
+    validate: zsh -n %s
   register: ohmyzsh_zshrc
 
-- name: config | p10k.zsh
+- name: config | .zshrc.d
   become: True
-  ansible.builtin.copy:
-    src: p10k.zsh
-    dest: '{{ ohmyzsh_user_home }}/.p10k.zsh'
+  ansible.builtin.file:
+    path: '{{ ohmyzsh_user_home }}/.zshrc.d'
+    state: directory
+    owner: '{{ ohmyzsh_user_name }}'
+    group: '{{ ohmyzsh_user_group }}'
+    mode: '0755'
+
+- name: config | starship config directory
+  become: True
+  ansible.builtin.file:
+    path: '{{ ohmyzsh_starship_config_path | dirname }}'
+    state: directory
+    owner: '{{ ohmyzsh_user_name }}'
+    group: '{{ ohmyzsh_user_group }}'
+    mode: '0755'
+
+- name: config | starship.toml
+  become: True
+  ansible.builtin.template:
+    src: starship.toml.j2
+    dest: '{{ ohmyzsh_starship_config_path }}'
     owner: '{{ ohmyzsh_user_name }}'
     group: '{{ ohmyzsh_user_group }}'
     mode: '0644'
+    backup: True
