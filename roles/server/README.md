@@ -126,8 +126,8 @@ already been bootstrapped.
 Three kinds of probe carry `check_mode: false`, because they only read and later
 tasks branch on their output: the `wait_for` port checks in `detect.yml` and
 `ssh.yml` -- `wait_for` declares no check mode support, so a skipped result
-would leave the `when` beneath it reading an undefined `msg` -- and the two
-`needrestart` calls in `packages.yml`, whose `stdout` decides whether the reboot
+would leave the `when` beneath it reading an undefined `msg` -- and the
+`needrestart -b` call in `packages.yml`, whose `stdout` decides whether the reboot
 handler fires. The `reboot` handler itself reports that it would reboot and does
 not. Since a check run only simulates the upgrade, `needrestart` reports what
 the host needs restarting for right now.

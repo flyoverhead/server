@@ -2,6 +2,24 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 4.0.1
+
+### Fixed
+
+- **server**: `server_upgrade` reboots when it should, and only then. The
+  library check ran `needrestart -v -n -l`, which a SIGPIPE in needrestart's
+  `notify.d` hooks killed (rc -13) on two of three Debian 13 hosts. The failed
+  task skipped the reboot handler, so the hosts kept the old kernel. Its
+  `changed_when` also matched "services need to be restarted", which
+  needrestart 3.11 never prints ("Services to be restarted:"), so it reported
+  a pending restart every time.
+
+  One `needrestart -b -r l` task replaces both checks. Batch mode prints
+  machine-readable lines and runs no hooks, and `-r l` only lists. The play
+  reboots when `NEEDRESTART-KSTA` is 2 or 3 (a newer kernel is installed) or
+  any `NEEDRESTART-SVC` line is present. A kernel status of 0 (unknown) or
+  outdated user sessions alone do not reboot.
+
 ## 4.0.0
 
 ### Changed
