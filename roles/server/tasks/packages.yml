@@ -60,22 +60,14 @@
       ansible.builtin.apt:
         autoremove: True
 
-    - name: packages | check obsolete kernel
+    # batch mode skips the notify.d hooks, whose SIGPIPE killed the interactive run (rc -13)
+    - name: packages | check pending restarts
       ansible.builtin.command:
-        cmd: needrestart -v -n -k
-      register: server_kernel_upgrade
+        cmd: needrestart -b -r l
+      register: server_needrestart
       check_mode: false
       changed_when: >-
-        "kernel seems to be up-to-date" not in server_kernel_upgrade.stdout
-      notify:
-        - packages | reboot
-
-    - name: packages | check obsolete libraries
-      ansible.builtin.command:
-        cmd: needrestart -v -n -l
-      register: server_libraries_upgrade
-      check_mode: false
-      changed_when: >-
-        "services need to be restarted" not in server_libraries_upgrade.stdout
+        server_needrestart.stdout is search('^NEEDRESTART-KSTA: [23]$', multiline=true)
+        or server_needrestart.stdout is search('^NEEDRESTART-SVC: ', multiline=true)
       notify:
         - packages | reboot
