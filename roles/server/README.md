@@ -18,7 +18,7 @@ full upgrade.
 | `server_pip_pyenv_path` | Virtualenv the packages go into, created with `uv venv` | `/home/user/.venv` |
 | `server_pip_packages` | Packages installed into that virtualenv with `uv pip install` | `[netaddr]` |
 | `server_uv_bin` | Path every task invokes uv by | `/usr/local/bin/uv` |
-| `server_uv_version` | uv release unpacked into `server_uv_bin`'s directory | `0.12.14` |
+| `server_uv_version` | uv release unpacked into `server_uv_bin`'s directory | `0.13.9` |
 | `server_uv_arch` | `ansible_facts.architecture` → release triple | `{x86_64: x86_64, aarch64: aarch64}` |
 | `server_uv_url` | Release tarball uv is unpacked from; override for a mirror or an air-gapped install | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `server_timezone` | System timezone | `Europe/Moscow` |

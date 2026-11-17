@@ -2,6 +2,16 @@
 
 All notable changes to `flyoverhead.server`.
 
+## 4.1.0
+
+### Changed
+
+- **server**: `server_uv_version` moves from `0.12.14` to `0.13.9`. uv 0.13
+  makes Python 3.15 the default interpreter for `uv python install` and
+  `uv venv` without a pinned version, and honours `--require-hashes` in
+  included constraints files. Pin a Python version in projects that need an
+  older one.
+
 ## 4.0.1
 
 ### Fixed
